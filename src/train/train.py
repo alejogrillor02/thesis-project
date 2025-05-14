@@ -16,7 +16,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout
 from tensorflow.keras.activations import relu  # tanh, sigmoid, tanh
 from tensorflow.keras.callbacks import ModelCheckpoint
-from tensorflow.keras.losses import logcosh, accuracy  # mae
+from tensorflow.keras.losses import logcosh, mae
 
 
 def main():
@@ -85,7 +85,7 @@ def main():
 	model.compile(
 		optimizer='adam',
 		loss=logcosh,
-		metrics=[accuracy]
+		metrics=[mae]
 	)
 
 	# Set up model checkpoint to save the best model
@@ -117,17 +117,6 @@ def main():
 	plt.ylabel('Loss')
 	plt.legend()
 	plt.savefig(path.join(output_path, f'{model_index}_{set_index}_fold_{val_fold}_loss.pdf'))
-	plt.close()
-
-	# Plot and save accuracy curve
-	plt.figure(figsize=(8, 6))
-	plt.plot(stat.history['accuracy'], label='Training Accuracy')
-	plt.plot(stat.history['val_accuracy'], label='Validation Accuracy')
-	plt.title('Training and Validation Accuracy')
-	plt.xlabel('Epoch')
-	plt.ylabel('Accuracy')
-	plt.legend()
-	plt.savefig(path.join(output_path, f'{model_index}_{set_index}_fold_{val_fold}_accuracy.pdf'))
 	plt.close()
 
 	# final_model_path = path.join(output_path_base, f'final_model_fold_{val_fold}.h5')

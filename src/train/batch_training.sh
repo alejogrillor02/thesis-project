@@ -32,7 +32,7 @@ batch_size=$(yq -r '.BATCH_SIZE' ${PROJECTDIR}/config.yaml)
 for str1 in "${model_strings[@]}"; do
 	for str2 in "${set_strings[@]}"; do
 		for ((i=1; i<=folds; i++)); do
-			./train.py "${TRAINDATA_DIR}" $i $folds $epochs $batch_size "${MODEL_DIR}" && echo "Done training $str model for $str2 set, $i fold."
+			./train.py "${TRAINDATA_DIR}/model_${str1}/set_${str2}" $i $folds $epochs $batch_size "${MODEL_DIR}" && echo "Done training $str model for $str2 set, $i fold."
 		done
 	done
 done

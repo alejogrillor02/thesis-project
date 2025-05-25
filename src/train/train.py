@@ -22,6 +22,7 @@ from tensorflow.keras.losses import logcosh, mae
 def main():
 
 	def load_fold_data(fold_path, fold_number):
+		# TODO: Write Docstrings...
 		"""Docstring..."""
 
 		filename = f"{model_index}_{set_index}_fold_{fold_number}.txt"
@@ -45,10 +46,10 @@ def main():
 		return model
 
 	training_set_path = argv[1]
-	val_fold = argv[2]
-	N_FOLDS = argv[3]
-	EPOCHS = argv[4]
-	BATCH_SIZE = argv[5]
+	val_fold = int(argv[2])
+	N_FOLDS = int(argv[3])
+	EPOCHS = int(argv[4])
+	BATCH_SIZE = int(argv[5])
 
 	# Parse the model and set index
 	parts = training_set_path.strip("/").split("/")

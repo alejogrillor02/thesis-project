@@ -79,6 +79,8 @@ def main():
 	X_train = np.delete(np.concatenate(X_train_parts, axis=0), 0, axis=1)  # np.concatenate(X_train_parts, axis=0)
 	y_train = np.concatenate(y_train_parts, axis=0)
 
+	X_val = np.delete(X_val, 0, axis=1)
+
 	# Create and compile model
 	n_features = X_train.shape[1]
 	n_labels = 1

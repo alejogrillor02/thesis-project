@@ -40,7 +40,7 @@ def main():
 			Dropout(0.3),
 			Dense(4, activation=relu),
 			Dropout(0.3),
-			Dense(outputs, activation='softmax')
+			Dense(outputs, activation='sigmoid')
 		])
 
 		return model

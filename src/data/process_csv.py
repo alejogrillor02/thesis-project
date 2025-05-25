@@ -68,13 +68,13 @@ def main() -> None:
 		except FileNotFoundError:
 			pass
 
-		col0 = [1 if entry == "M" else 0 for entry in df["SEXO"]]
-		col1 = normalizeminmax(df["REF_ESP"], set_i)
-		col2 = normalizeminmax(df["ESF2"] + (df["CIL2"] / 2), set_i)
-		col3 = normalizeminmax(df["K1"], set_i)
-		col4 = normalizeminmax(df["LAXIAL"], set_i)
-		col5 = normalizeminmax(df["PCA"], set_i)
-		col6 = normalizeminmax(df["LENTE_DEF"], set_i)
+		col0 = [1 if entry == "M" else 0 for entry in df_i["SEXO"]]
+		col1 = normalizeminmax(df_i["REF_ESP"], set_i)
+		col2 = normalizeminmax(df_i["ESF2"] + (df_i["CIL2"] / 2), set_i)
+		col3 = normalizeminmax(df_i["K1"], set_i)
+		col4 = normalizeminmax(df_i["LAXIAL"], set_i)
+		col5 = normalizeminmax(df_i["PCA"], set_i)
+		col6 = normalizeminmax(df_i["LENTE_DEF"], set_i)
 
 		data = np.empty((len(col0), 7))
 		data[:, 0] = col0

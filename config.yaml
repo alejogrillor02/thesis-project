@@ -6,14 +6,14 @@ OUTPUT_DIR: "output"
 # Data Preprocessing
 MODELS:
   - "432"
-  - "533"
-  - "903"
-  - "933"
-  - "944"
+  # - "533"
+  # - "903"
+  # - "933"
+  # - "944"
 SETS:
   - "G"
-  - "M"
-  - "F"
+  # - "M"
+  # - "F"
 FOLDS: 10
 
 # Training

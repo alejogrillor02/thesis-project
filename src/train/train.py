@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Author: alejo.grillor02
 
-# TODO: Write this Docstring.
+# TODO: Write Docstrings...
 """
 PUBLIC DOCSTRING.
 
@@ -17,12 +17,12 @@ from tensorflow.keras.layers import Dense, Dropout
 from tensorflow.keras.activations import relu  # tanh, sigmoid, tanh
 from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.losses import logcosh, mae
+from tqdm.keras import TqdmCallback
 
 
 def main():
 
 	def load_fold_data(fold_path, fold_number):
-		# TODO: Write Docstrings...
 		"""Docstring..."""
 
 		filename = f"{model_index}_{set_index}_fold_{fold_number}.txt"
@@ -36,9 +36,9 @@ def main():
 		"""Docstring."""
 
 		model = Sequential([
-			Dense(128, activation=relu, input_shape=(inputs, )),
+			Dense(8, activation=relu, input_shape=(inputs, )),
 			Dropout(0.3),
-			Dense(64, activation=relu),
+			Dense(4, activation=relu),
 			Dropout(0.3),
 			Dense(outputs, activation='softmax')
 		])
@@ -81,10 +81,10 @@ def main():
 
 	# Create and compile model
 	n_features = X_train.shape[1]
-	n_labels = len(np.unique(y_train))
+	n_labels = 1
 	model = create_model(n_features, n_labels)
 	model.compile(
-		optimizer='adam',
+		optimizer='Adam',
 		loss=logcosh,
 		metrics=[mae]
 	)
@@ -93,8 +93,8 @@ def main():
 	model_path = path.join(output_path_base, f'{model_index}_{set_index}_fold_{val_fold}.h5')
 	checkpoint = ModelCheckpoint(
 		model_path,
-		monitor='val_loss',
 		save_best_only=True,
+		monitor='val_loss',
 		mode='auto',
 		verbose=1
 	)
@@ -105,8 +105,8 @@ def main():
 		validation_data=(X_val, y_val),
 		epochs=EPOCHS,
 		batch_size=BATCH_SIZE,
-		callbacks=[checkpoint],
-		verbose=1
+		callbacks=[checkpoint, TqdmCallback(verbose=1)],
+		verbose=0
 	)
 
 	# Plot and save loss curve
@@ -127,7 +127,6 @@ def main():
 	final_train_loss, final_train_acc = model.evaluate(X_train, y_train, verbose=0)
 	final_val_loss, final_val_acc = model.evaluate(X_val, y_val, verbose=0)
 
-	print(f"\nTraining completed for fold {val_fold}")
 	print(f"Final Training Loss: {final_train_loss:.4f}, Accuracy: {final_train_acc:.4f}")
 	print(f"Final Validation Loss: {final_val_loss:.4f}, Accuracy: {final_val_acc:.4f}")
 

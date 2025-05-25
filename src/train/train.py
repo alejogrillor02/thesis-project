@@ -17,7 +17,7 @@ from tensorflow.keras.layers import Dense, Dropout
 from tensorflow.keras.activations import relu  # tanh, sigmoid, tanh
 from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.losses import logcosh, mae
-from tqdm.keras import TqdmCallback
+from tensorflow.keras.optimizers import Adam
 
 
 def main():
@@ -76,7 +76,7 @@ def main():
 			y_train_parts.append(y)
 
 	# Concatenate all training parts
-	X_train = np.concatenate(X_train_parts, axis=0)
+	X_train = np.delete(np.concatenate(X_train_parts, axis=0), 0, axis=1)  # np.concatenate(X_train_parts, axis=0)
 	y_train = np.concatenate(y_train_parts, axis=0)
 
 	# Create and compile model
@@ -84,13 +84,13 @@ def main():
 	n_labels = 1
 	model = create_model(n_features, n_labels)
 	model.compile(
-		optimizer='Adam',
+		optimizer=Adam(learning_rate=0.001),
 		loss=logcosh,
 		metrics=[mae]
 	)
 
 	# Set up model checkpoint to save the best model
-	model_path = path.join(output_path_base, f'{model_index}_{set_index}_fold_{val_fold}.h5')
+	model_path = path.join(output_path_base, f'{model_index}_{set_index}_fold_{val_fold}.keras')
 	checkpoint = ModelCheckpoint(
 		model_path,
 		save_best_only=True,
@@ -105,8 +105,8 @@ def main():
 		validation_data=(X_val, y_val),
 		epochs=EPOCHS,
 		batch_size=BATCH_SIZE,
-		callbacks=[checkpoint, TqdmCallback(verbose=1)],
-		verbose=0
+		callbacks=[checkpoint],
+		verbose=1
 	)
 
 	# Plot and save loss curve

@@ -51,7 +51,7 @@ def main():
 
 	shap_values_per_fold = []
 	for model in models:
-		explainer = shap.GradientExplainer(model, background)
+		explainer = shap.Explainer(model, background)
 		shap_values = explainer.shap_values(X_test)
 		shap_values_per_fold.append(shap_values)
 

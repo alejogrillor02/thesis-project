@@ -1,3 +1,6 @@
+#!/bin/bash
+# Author: alejo.grillor02
+
 SCRDIR=$(realpath "$(dirname "$0")")
 cd "$SCRDIR" || exit
 

@@ -4,6 +4,31 @@ MODEL_DIR: "models"
 OUTPUT_DIR: "output"
 
 # Data Preprocessing
+FEATURES:
+  - "REF_ESP"
+  # - "C_P" # Esto aparentemente tiene el mismo valor que el label?
+  - "EDAD"
+  # - "SEXO"
+  - "AVSC1"
+  - "AVCC1" # Hay varios features como este que tienen valores similares en muchos casos
+  - "ESF1"
+  - "CIL1"
+  - "EJE1"
+  - "AVSC2"
+  - "AVCC2"
+  - "ESF2"
+  - "CIL2"
+  - "EJE2"
+  - "MF1"
+  - "MD1"
+  - "K1"
+  - "WTW"
+  - "CENTRO"
+  - "DP"
+  - "GC"
+  - "PCA"
+  - "LAXIAL"
+  - "LENTE_DEF" # Este es el Label
 MODELS:
   - "432"
   # - "533"

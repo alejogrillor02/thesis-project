@@ -1,8 +1,4 @@
 #!/usr/bin/env python
-#
-# License: GNU GPLv3
-# python 3.11.5
-# tensorflow 2.13.0
 
 """
 PUBLIC DOCSTRING.
@@ -12,102 +8,106 @@ PLACEHOLDER
 
 import numpy as np
 import matplotlib.pyplot as plt
-import csv
 from sys import argv
-from os import path, makedirs
-
-# from tensorflow.keras.losses import mae
-# from tensorflow.keras.models import Model, Sequential
-# from tensorflow.keras.layers import Input, Dense, Dropout, Flatten
-# from tensorflow.keras.activations import sigmoid
-# from tensorflow.keras.callbacks import ModelCheckpoint
+from os import path
 from tensorflow.keras.models import load_model
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 
-def evaluate_with_keras() -> None:
-	"""Docstring."""
-	input_model = argv[1]
-	input_test = argv[2]
+def main():
 
-	def denormalizeminmax(array: np.array, cmax: float, cmin: float):
-		"""Docstring."""
-		return np.array([normalized_value * (cmax - cmin) + cmin for normalized_value in array])
+	def load_test_data(test_path):
+		"""Load test data from file."""
+		data = np.loadtxt(test_path)
+		X = data[:, :-1]
+		y = data[:, -1]
+		return X, y
 
-	def returnminmax(lens_model: str, set_index: str):
-		"""Docstring."""
-		with open("data/processed/" + lens_model + "/" + lens_model + "-" + set_index + "-Normalization-data.csv", "r") as file:
-			minmax = [row[0:2] for idx, row in enumerate(csv.reader(file)) if idx == 5][0]
-		return [float(x) for x in minmax]
+	# Parse command line arguments
+	models_path = argv[1]  # Path where trained models are stored
+	test_data_path = argv[2]  # Path to test data file
 
-	in_basename = path.basename(input_model)
-	in_lens_model = in_basename[:3]
-	in_set_index = in_basename[4]
-	in_sample_index = in_basename[6]
+	# Parse model and set index from path (similar to training script)
+	parts = models_path.strip("/").split("/")
+	relevant_parts = parts[-2:]
+	model_dir = relevant_parts[-2]  # 'model_XXX'
+	set_dir = relevant_parts[-1]    # 'set_Y'
+	model_index = model_dir.split("_")[1]
+	set_index = set_dir.split("_")[1]
 
-	test_basename = path.basename(input_test)
-	test_lens_model = test_basename[:3]
-	test_set_index = test_basename[4]
-	test_sample_index = test_basename[6]
+	# Load test data
+	X_test, y_test = load_test_data(test_data_path)
+	X_test = np.delete(X_test, 0, axis=1)  # Consistent with training preprocessing
 
-	output_dir = "./output/" + in_lens_model + "/" + in_set_index + "/test/" + in_sample_index
-	makedirs(output_dir, exist_ok=True)
-	commonname = in_lens_model + "-" + in_set_index + "-" + in_sample_index + "->" + test_lens_model + "-" + test_set_index + "-" + test_sample_index
-	output_fig_path = output_dir + "/error-" + commonname + "-test.png"
-	output_error_path = output_dir + "/error-" + commonname + ".txt"
-	output_mean_path = output_dir + "/error-" + commonname + "-mean.txt"
+	# Initialize lists to store metrics for each fold
+	all_mae = []
+	all_mse = []
+	all_r2 = []
+	all_predictions = []
 
-	model = load_model(input_model)
-	# model.summary()
+	# Evaluate each fold model
+	n_folds = 5  # Adjust based on your actual number of folds
+	for fold_num in range(1, n_folds + 1):
+		model_path = path.join(models_path, f'{model_index}_{set_index}_fold_{fold_num}.keras')
 
-	DATA_IN = [0, 1, 2, 3, 4]
-	DATA_OUT = [5]
+		try:
+			model = load_model(model_path)
 
-	# TODO: Revisar porque rayos creé test_orig, prefiero no tocarlo
-	test_orig = np.loadtxt(input_test)
-	test = np.loadtxt(input_test)
+			# Make predictions
+			y_pred = model.predict(X_test).flatten()
+			all_predictions.append(y_pred)
 
-	test_data = test[:, DATA_IN], test[:, DATA_OUT]
+			# Calculate metrics
+			mae_score = mean_absolute_error(y_test, y_pred)
+			mse_score = mean_squared_error(y_test, y_pred)
+			r2 = r2_score(y_test, y_pred)
 
-	predicted_y = model.predict(test_data[0])
-	real = test_data[1]
+			all_mae.append(mae_score)
+			all_mse.append(mse_score)
+			all_r2.append(r2)
 
-	in_cmax, in_cmin = returnminmax(in_lens_model, in_set_index)
-	test_cmax, test_cmin = returnminmax(in_lens_model, in_set_index)
-	denorm_predicted_y = denormalizeminmax(predicted_y, in_cmax, in_cmin)
-	denorm_real = denormalizeminmax(real, test_cmax, test_cmin)
+			print(f"Fold {fold_num} - MAE: {mae_score:.4f}, MSE: {mse_score:.4f}, R²: {r2:.4f}")
 
-	error = (denorm_predicted_y - denorm_real).flatten()
-	error_mean = error.mean()
-	file = open(output_mean_path, "w")
-	file.write("%.2f" % (error_mean))
-	plot_data = np.empty((len(real), 8))
+		except Exception as e:
+			print(f"Error loading model for fold {fold_num}: {e}")
+			continue
 
-	plot_data[:, 0] = test_orig[:, 0]
-	plot_data[:, 1] = test_orig[:, 1]
-	plot_data[:, 2] = test_orig[:, 2]
-	plot_data[:, 3] = test_orig[:, 3]
-	plot_data[:, 4] = test_orig[:, 4]
-	plot_data[:, 5] = test_orig[:, 5]
-	plot_data[:, 6] = denorm_predicted_y.flatten()
-	plot_data[:, 7] = error
+	# Calculate mean and std of metrics across folds
+	mean_mae = np.mean(all_mae)
+	std_mae = np.std(all_mae)
 
-	np.savetxt(output_error_path, plot_data, fmt="%.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f")
+	mean_mse = np.mean(all_mse)
+	std_mse = np.std(all_mse)
 
-	# sns.set(font_scale=1)
-	plt.subplot(2, 1, 1)
-	plt.figure(1)
-	plt.title("Potencia óptica")
+	mean_r2 = np.mean(all_r2)
+	std_r2 = np.std(all_r2)
 
-	x = np.arange(0, len(denorm_predicted_y))
-	plt.scatter(x, denorm_real, label="Real values")
-	plt.scatter(x, denorm_predicted_y, label="Predicted")
-	plt.legend()
-	plt.subplot(2, 1, 2)
-	plt.plot(error)
-	plt.ylabel("Error")
-	plt.savefig(output_fig_path, dpi=300)
-	# plt.show()
+	print("\nAggregated Performance Across Folds:")
+	print(f"Mean MAE: {mean_mae:.4f} ± {std_mae:.4f}")
+	print(f"Mean MSE: {mean_mse:.4f} ± {std_mse:.4f}")
+	print(f"Mean R²: {mean_r2:.4f} ± {std_r2:.4f}")
+
+	# Optionally: Calculate metrics on mean predictions
+	mean_predictions = np.mean(np.array(all_predictions), axis=0)
+	ensemble_mae = mean_absolute_error(y_test, mean_predictions)
+	ensemble_mse = mean_squared_error(y_test, mean_predictions)
+	ensemble_r2 = r2_score(y_test, mean_predictions)
+
+	print("\nEnsemble Performance (Mean Prediction):")
+	print(f"MAE: {ensemble_mae:.4f}")
+	print(f"MSE: {ensemble_mse:.4f}")
+	print(f"R²: {ensemble_r2:.4f}")
+
+	# Plot actual vs predicted
+	plt.figure(figsize=(8, 6))
+	plt.scatter(y_test, mean_predictions, alpha=0.5)
+	plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'k--', lw=2)
+	plt.xlabel('Actual Values')
+	plt.ylabel('Predicted Values')
+	plt.title('Actual vs Predicted Values')
+	plt.savefig(path.join(models_path, f'{model_index}_{set_index}_test_predictions.pdf'))
+	plt.close()
 
 
 if __name__ == "__main__":
-	evaluate_with_keras()
+	main()

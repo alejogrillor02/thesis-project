@@ -18,7 +18,7 @@ from os import path, makedirs
 
 def main() -> None:
 
-	def normalizeminmax(data: pd.DataFrame, set_i: str) -> list:
+	def normalizeminmax(data: pd.DataFrame, set_i: str, feature_name: str) -> list:
 		"""
 		Normaliza una columna a rango [0,1] por MinMax y guarda stats de normalización.
 
@@ -36,12 +36,14 @@ def main() -> None:
 
 		with open(f"{output_dir}/{index}_{set_i}_norm_stats.csv", "a") as file:
 			writer = csv.writer(file)
-			writer.writerow([cmax, cmin])
+			writer.writerow([feature_name, cmax, cmin])
 		return data_norm
 
 	input_path = argv[1]
 	index = path.basename(input_path)[:3]
 	output_dir = argv[2] if len(argv) > 2 else f"./{index}"
+	features = argv[3:]
+
 	makedirs(output_dir, exist_ok=True)
 
 	df = pd.read_csv(input_path)
@@ -68,22 +70,30 @@ def main() -> None:
 		except FileNotFoundError:
 			pass
 
-		col0 = [1 if entry == "M" else 0 for entry in df_i["SEXO"]]
-		col1 = normalizeminmax(df_i["REF_ESP"], set_i)
-		col2 = normalizeminmax(df_i["ESF2"] + (df_i["CIL2"] / 2), set_i)
-		col3 = normalizeminmax(df_i["K1"], set_i)
-		col4 = normalizeminmax(df_i["LAXIAL"], set_i)
-		col5 = normalizeminmax(df_i["PCA"], set_i)
-		col6 = normalizeminmax(df_i["LENTE_DEF"], set_i)
+		data = np.empty((len(df_i), len(features) + 1))
+		data[:, 0] = [1 if entry == "M" else 0 for entry in df_i["SEXO"]]
 
-		data = np.empty((len(col0), 7))
-		data[:, 0] = col0
-		data[:, 1] = col1
-		data[:, 2] = col2
-		data[:, 3] = col3
-		data[:, 4] = col4
-		data[:, 5] = col5
-		data[:, 6] = col6
+		for i, feature in enumerate(features, start=1):
+			col_data = df_i[feature]
+
+			data[:, i] = normalizeminmax(col_data, set_i, feature)
+
+		# col0 = [1 if entry == "M" else 0 for entry in df_i["SEXO"]]
+		# col1 = normalizeminmax(df_i["REF_ESP"], set_i)
+		# col2 = normalizeminmax(df_i["ESF2"] + (df_i["CIL2"] / 2), set_i)
+		# col3 = normalizeminmax(df_i["K1"], set_i)
+		# col4 = normalizeminmax(df_i["LAXIAL"], set_i)
+		# col5 = normalizeminmax(df_i["PCA"], set_i)
+		# col6 = normalizeminmax(df_i["LENTE_DEF"], set_i)
+
+		# data = np.empty((len(col0), 7))
+		# data[:, 0] = col0
+		# data[:, 1] = col1
+		# data[:, 2] = col2
+		# data[:, 3] = col3
+		# data[:, 4] = col4
+		# data[:, 5] = col5
+		# data[:, 6] = col6
 
 		output_path = f"{output_dir}/{index}_{set_i}.txt"
 		np.savetxt(output_path, data, fmt="%d %f %f %f %f %f %f")

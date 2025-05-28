@@ -18,7 +18,7 @@ def load_fold_data(fold_path, fold_number, model_index, set_index):
 def main():
     # Parsear argumentos de línea de comandos
     if len(sys.argv) < 4:
-        print("Uso: python shap_script.py <ruta_modelo.h5> <ruta_datos_entrenamiento> <val_fold> [ruta_salida]")
+        print("Uso: python shap.py <ruta_modelo.keras> <ruta_datos_entrenamiento> <val_fold> [ruta_salida]")
         sys.exit(1)
 
     model_path = sys.argv[1]

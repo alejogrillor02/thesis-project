@@ -129,9 +129,6 @@ def main():
 	# final_train_loss, final_train_acc = model.evaluate(X_train, y_train, verbose=0)
 	# final_val_loss, final_val_acc = model.evaluate(X_val, y_val, verbose=0)
 
-	# print(f"Final Training Loss: {final_train_loss:.4f}, Accuracy: {final_train_acc:.4f}")
-	# print(f"Final Validation Loss: {final_val_loss:.4f}, Accuracy: {final_val_acc:.4f}")
-
 
 if __name__ == "__main__":
 	main()

@@ -32,7 +32,10 @@ def main() -> None:
 
 		cmax = max(data)
 		cmin = min(data)
-		data_norm = [(x - cmin) / (cmax - cmin) for x in data]
+		try:
+			data_norm = [(x - cmin) / (cmax - cmin) for x in data]
+		except ZeroDivisionError:
+			data_norm = data
 
 		with open(f"{output_dir}/{index}_{set_i}_norm_stats.csv", "a") as file:
 			writer = csv.writer(file)

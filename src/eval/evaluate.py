@@ -9,7 +9,7 @@ PLACEHOLDER
 import numpy as np
 import matplotlib.pyplot as plt
 from sys import argv
-from os import path
+from os import makedirs, path
 from tensorflow.keras.models import load_model
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
@@ -38,6 +38,7 @@ def main():
 	set_index = set_dir.split("_")[1]
 
 	output_path_base = f"{output_path}/model_{model_index}/set_{set_index}"
+	makedirs(output_path_base, exist_ok=True)
 
 	# Load test data
 	X_test, y_test = load_test_data(test_data_path)

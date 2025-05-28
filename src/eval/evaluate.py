@@ -31,7 +31,8 @@ def main():
 	models_path = argv[1]
 	test_data_path = argv[2]
 	n_folds = int(argv[3])
-	output_path = argv[4]
+	denorm_path = argv[4]
+	output_path = argv[5]
 
 	# Parse model and set index
 	parts = models_path.strip("/").split("/")
@@ -64,7 +65,7 @@ def main():
 		all_predictions.append(y_pred)
 
 		# (Optional) Denormalize labels
-		with open('your_file.csv', 'r') as file:
+		with open(f'{denorm_path}/{model_index}_{set_index}_norm_stats.csv', 'r') as file:
 			last_line = file.readlines()[-1].strip()
 			c_min, c_max = last_line.split(',')[:2]
 

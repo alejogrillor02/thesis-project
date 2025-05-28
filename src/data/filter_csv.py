@@ -33,7 +33,7 @@ def main():
 
 	csv_path = argv[1]
 	basename = path.basename(csv_path)
-	output_dir = argv[2] if len(argv) > 2 else "./"
+	output_dir = argv[2]
 	output_path = path.join(output_dir, f"{basename[:3]}_filtered.csv")
 	makedirs(output_dir, exist_ok=True)
 

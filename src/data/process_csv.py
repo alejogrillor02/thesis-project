@@ -44,7 +44,7 @@ def main() -> None:
 
 	input_path = argv[1]
 	index = path.basename(input_path)[:3]
-	output_dir = argv[2] if len(argv) > 2 else f"./{index}"
+	output_dir = argv[2]
 	features = argv[3:]
 
 	makedirs(output_dir, exist_ok=True)

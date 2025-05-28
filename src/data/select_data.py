@@ -20,8 +20,9 @@ def main():
 	n_folds = int(argv[2])
 	model_index = path.basename(input_dataset)[:3]
 	set_index = path.basename(input_dataset)[4]
+	features = argv[4:]
 
-	output_path = argv[3] if len(argv) > 3 else "./"
+	output_path = argv[3]
 	output_path_base = f"{output_path}/model_{model_index}/set_{set_index}"
 	makedirs(output_path_base, exist_ok=True)
 
@@ -51,10 +52,10 @@ def main():
 	for fold_idx, (train_idx, test_idx) in enumerate(split_generator, 1):
 		train_data = np.column_stack((Y_train[train_idx], X_train[train_idx]))
 
-		np.savetxt(f"{output_path_base}/{model_index}_{set_index}_fold_{fold_idx}.txt", train_data, fmt="%d %f %f %f %f %f %f")
+		np.savetxt(f"{output_path_base}/{model_index}_{set_index}_fold_{fold_idx}.txt", train_data, fmt="%d " + " ".join(["%f"] * len(features)))
 
 	test_data = np.column_stack((Y_test, X_test))
-	np.savetxt(f"{output_path_base}/{model_index}_{set_index}_test.txt", test_data, fmt="%d %f %f %f %f %f %f")
+	np.savetxt(f"{output_path_base}/{model_index}_{set_index}_test.txt", test_data, fmt="%d " + " ".join(["%f"] * len(features)))
 
 
 if __name__ == "__main__":

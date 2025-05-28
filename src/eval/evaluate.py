@@ -26,7 +26,7 @@ def main():
 	# Parse command line arguments
 	models_path = argv[1]
 	test_data_path = argv[2]
-	n_folds = argv[3]
+	n_folds = int(argv[3])
 	output_path = argv[4]
 
 	# Parse model and set index

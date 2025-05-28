@@ -31,7 +31,7 @@ def main():
 	model_index = model_dir.split("_")[1]
 	set_index = set_dir.split("_")[1]
 
-	model_paths = [f"{model_index}_{set_index}_fold_{i}.keras" for i in range(1, n_folds + 1)]
+	model_paths = [f"{model_path}/{model_index}_{set_index}_fold_{i}.keras" for i in range(1, n_folds + 1)]
 	models = [load_model(path) for path in model_paths]
 
 	# Cargar el set de training entero

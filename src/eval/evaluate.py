@@ -31,7 +31,7 @@ def main():
 	models_path = argv[1]
 	test_data_path = argv[2]
 	n_folds = int(argv[3])
-	denorm_path = argv[4]
+	# denorm_path = argv[4]
 	output_path = argv[5]
 
 	# Parse model and set index
@@ -65,14 +65,14 @@ def main():
 		all_predictions.append(y_pred)
 
 		# (Optional) Denormalize labels
-		with open(f'{denorm_path}/{model_index}_{set_index}_norm_stats.csv', 'r') as file:
-			last_line = file.readlines()[-1].strip()
-			_label, c_min, c_max = last_line.split(',')
-			c_min = float(c_min)
-			c_max = float(c_max)
+		# with open(f'{denorm_path}/{model_index}_{set_index}_norm_stats.csv', 'r') as file:
+		# 	last_line = file.readlines()[-1].strip()
+		# 	_label, c_min, c_max = last_line.split(',')
+		# 	c_min = float(c_min)
+		# 	c_max = float(c_max)
 
-		y_test = denormalizeminmax(y_test, c_max, c_min)
-		y_pred = denormalizeminmax(y_pred, c_max, c_min)
+		# y_test = denormalizeminmax(y_test, c_max, c_min)
+		# y_pred = denormalizeminmax(y_pred, c_max, c_min)
 
 		# Calculate metrics
 		mae_score = mean_absolute_error(y_test, y_pred)

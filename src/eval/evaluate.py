@@ -67,7 +67,7 @@ def main():
 		# (Optional) Denormalize labels
 		with open(f'{denorm_path}/{model_index}_{set_index}_norm_stats.csv', 'r') as file:
 			last_line = file.readlines()[-1].strip()
-			c_min, c_max = last_line.split(',')[:2]
+			_label, c_min, c_max = last_line.split(',')
 			c_min = float(c_min)
 			c_max = float(c_max)
 

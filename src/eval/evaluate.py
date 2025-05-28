@@ -68,6 +68,8 @@ def main():
 		with open(f'{denorm_path}/{model_index}_{set_index}_norm_stats.csv', 'r') as file:
 			last_line = file.readlines()[-1].strip()
 			c_min, c_max = last_line.split(',')[:2]
+			c_min = float(c_min)
+			c_max = float(c_max)
 
 		y_test = denormalizeminmax(y_test, c_max, c_min)
 		y_pred = denormalizeminmax(y_pred, c_max, c_min)

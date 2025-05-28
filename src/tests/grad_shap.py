@@ -48,6 +48,7 @@ def main():
 
 	data = np.loadtxt(f'{training_set_path}/{model_index}_{set_index}_test.txt')
 	X_test = data[:, :-1]
+	X_test = np.delete(X_test, 0, axis=1)
 
 	shap_values_per_fold = []
 	for model in models:

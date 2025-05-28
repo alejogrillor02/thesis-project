@@ -2,8 +2,9 @@
 
 import numpy as np
 import shap
+import matplotlib.pyplot as plt
 from tensorflow.keras.models import load_model
-import sys
+from sys import argv
 from os import path
 
 
@@ -20,9 +21,10 @@ def main():
 		return X, y
 
 	# Parsear argumentos de línea de comandos
-	model_path = sys.argv[1]
-	training_set_path = sys.argv[2]
-	n_folds = int(sys.argv[3])
+	model_path = argv[1]
+	training_set_path = argv[2]
+	n_folds = int(argv[3])
+	output_path = argv[4]
 
 	parts = model_path.strip("/").split("/")
 	relevant_parts = parts[-2:]
@@ -31,6 +33,7 @@ def main():
 	model_index = model_dir.split("_")[1]
 	set_index = set_dir.split("_")[1]
 
+	output_path_base = f"{output_path}/model_{model_index}/set_{set_index}"
 	model_paths = [f"{model_path}/{model_index}_{set_index}_fold_{i}.keras" for i in range(1, n_folds + 1)]
 	models = [load_model(path) for path in model_paths]
 
@@ -52,14 +55,17 @@ def main():
 
 	shap_values_per_fold = []
 	for model in models:
-		explainer = shap.Explainer(model, background)
+		explainer = shap.GradientExplainer(model, background)
 		shap_values = explainer.shap_values(X_test)
 		shap_values_per_fold.append(shap_values)
 
 	# Stack and average SHAP values across folds
 	shap_values_aggregated = np.mean(shap_values_per_fold, axis=0)
 
-	shap.summary_plot(shap_values_aggregated, X_test)
+	plt.figure()
+	shap.summary_plot(shap_values_aggregated, X_test, show=False)
+	plt.savefig(path.join(output_path_base, f'{model_index}_{set_index}_shap_summary.pdf'))
+	plt.close()
 
 
 if __name__ == "__main__":

@@ -25,6 +25,6 @@ folds=$(yq -r '.FOLDS' ${PROJECTDIR}/config.yaml)
 
 for str1 in "${model_strings[@]}"; do
 	for str2 in "${set_strings[@]}"; do
-		./grad_shap.py "${MODEL_DIR}/model_${str1}/set_${str2}" "${TRAINDATA_DIR}/model_${str1}/set_${str2}" $folds && echo "Done computing SHAP values for $str1 model for $str2 set."
+		./grad_shap.py "${MODEL_DIR}/model_${str1}/set_${str2}" "${TRAINDATA_DIR}/model_${str1}/set_${str2}" $folds "${OUTPUT_DIR}" && echo "Done computing SHAP values for $str1 model for $str2 set."
 	done
 done

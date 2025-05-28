@@ -10,12 +10,12 @@ cd "$SCRDIR" || exit
 
 PROJECTDIR="$SCRDIR"
 while [[ ! -f "${PROJECTDIR}/config.yaml" ]] && [[ "$PROJECTDIR" != "/" ]]; do
-  PROJECTDIR=$(dirname "$PROJECTDIR")
+	PROJECTDIR=$(dirname "$PROJECTDIR")
 done
 
 if [[ ! -f "${PROJECTDIR}/config.yaml" ]]; then
-  echo "Error: config.yaml not found in project root!" >&2
-  exit 1
+	echo "Error: config.yaml not found in project root!" >&2
+	exit 1
 fi
 
 DATA_DIR=${PROJECTDIR}/$(yq -r '.DATA_DIR' ${PROJECTDIR}/config.yaml)

@@ -24,10 +24,12 @@ def main():
 		return X, y
 
 	# Parse command line arguments
-	models_path = argv[1]  # Path where trained models are stored
-	test_data_path = argv[2]  # Path to test data file
+	models_path = argv[1]
+	test_data_path = argv[2]
+	n_folds = argv[3]
+	output_path = argv[4]
 
-	# Parse model and set index from path (similar to training script)
+	# Parse model and set index
 	parts = models_path.strip("/").split("/")
 	relevant_parts = parts[-2:]
 	model_dir = relevant_parts[-2]  # 'model_XXX'
@@ -35,18 +37,18 @@ def main():
 	model_index = model_dir.split("_")[1]
 	set_index = set_dir.split("_")[1]
 
+	output_path_base = f"{output_path}/model_{model_index}/set_{set_index}"
+
 	# Load test data
 	X_test, y_test = load_test_data(test_data_path)
-	X_test = np.delete(X_test, 0, axis=1)  # Consistent with training preprocessing
+	X_test = np.delete(X_test, 0, axis=1)
 
-	# Initialize lists to store metrics for each fold
+	# store metrics for each fold
 	all_mae = []
 	all_mse = []
 	all_r2 = []
 	all_predictions = []
 
-	# Evaluate each fold model
-	n_folds = 5  # Adjust based on your actual number of folds
 	for fold_num in range(1, n_folds + 1):
 		model_path = path.join(models_path, f'{model_index}_{set_index}_fold_{fold_num}.keras')
 
@@ -72,7 +74,7 @@ def main():
 			print(f"Error loading model for fold {fold_num}: {e}")
 			continue
 
-	# Calculate mean and std of metrics across folds
+	# Compute mean and std of metrics across folds
 	mean_mae = np.mean(all_mae)
 	std_mae = np.std(all_mae)
 
@@ -96,7 +98,7 @@ def main():
 	print("\nEnsemble Performance (Mean Prediction):")
 	print(f"MAE: {ensemble_mae:.4f}")
 	print(f"MSE: {ensemble_mse:.4f}")
-	print(f"R²: {ensemble_r2:.4f}")
+	print(f"R2: {ensemble_r2:.4f}")
 
 	# Plot actual vs predicted
 	plt.figure(figsize=(8, 6))
@@ -105,8 +107,7 @@ def main():
 	plt.xlabel('Actual Values')
 	plt.ylabel('Predicted Values')
 	plt.title('Actual vs Predicted Values')
-	plt.savefig(path.join(models_path, f'{model_index}_{set_index}_test_predictions.pdf'))
-	plt.close()
+	plt.savefig(path.join(output_path_base, f'{model_index}_{set_index}_test_predictions.pdf'))
 
 
 if __name__ == "__main__":

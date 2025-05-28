@@ -62,10 +62,11 @@ def main():
 	# Stack and average SHAP values across folds
 	shap_values_aggregated = np.mean(shap_values_per_fold, axis=0)
 
-	plt.figure()
+	plt.figure(figsize=(10, 8), dpi=120)  # Wider and taller plot
 	shap.summary_plot(shap_values_aggregated, X_test, show=False)
-	plt.savefig(path.join(output_path_base, f'{model_index}_{set_index}_shap_summary.pdf'))
-	plt.close()
+	plt.tight_layout()  # Prevents label cutoff
+	plt.savefig(path.join(output_path_base, f'{model_index}_{set_index}_shap_summary.png'), bbox_inches="tight")  # Save high-resolution
+	plt.show()
 
 
 if __name__ == "__main__":

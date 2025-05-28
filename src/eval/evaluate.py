@@ -23,6 +23,10 @@ def main():
 		y = data[:, -1]
 		return X, y
 
+	def denormalizeminmax(array: np.array, cmax: float, cmin: float):
+		"""Docstring."""
+		return np.array([normalized_value * (cmax - cmin) + cmin for normalized_value in array])
+
 	# Parse command line arguments
 	models_path = argv[1]
 	test_data_path = argv[2]
@@ -53,27 +57,30 @@ def main():
 	for fold_num in range(1, n_folds + 1):
 		model_path = path.join(models_path, f'{model_index}_{set_index}_fold_{fold_num}.keras')
 
-		try:
-			model = load_model(model_path)
+		model = load_model(model_path)
 
-			# Make predictions
-			y_pred = model.predict(X_test).flatten()
-			all_predictions.append(y_pred)
+		# Make predictions
+		y_pred = model.predict(X_test).flatten()
+		all_predictions.append(y_pred)
 
-			# Calculate metrics
-			mae_score = mean_absolute_error(y_test, y_pred)
-			mse_score = mean_squared_error(y_test, y_pred)
-			r2 = r2_score(y_test, y_pred)
+		# (Optional) Denormalize labels
+		with open('your_file.csv', 'r') as file:
+			last_line = file.readlines()[-1].strip()
+			c_min, c_max = last_line.split(',')[:2]
 
-			all_mae.append(mae_score)
-			all_mse.append(mse_score)
-			all_r2.append(r2)
+		y_test = denormalizeminmax(y_test, c_max, c_min)
+		y_pred = denormalizeminmax(y_pred, c_max, c_min)
 
-			print(f"Fold {fold_num} - MAE: {mae_score:.4f}, MSE: {mse_score:.4f}, R²: {r2:.4f}")
+		# Calculate metrics
+		mae_score = mean_absolute_error(y_test, y_pred)
+		mse_score = mean_squared_error(y_test, y_pred)
+		r2 = r2_score(y_test, y_pred)
 
-		except Exception as e:
-			print(f"Error loading model for fold {fold_num}: {e}")
-			continue
+		all_mae.append(mae_score)
+		all_mse.append(mse_score)
+		all_r2.append(r2)
+
+		print(f"Fold {fold_num} - MAE: {mae_score:.4f}, MSE: {mse_score:.4f}, R²: {r2:.4f}")
 
 	# Compute mean and std of metrics across folds
 	mean_mae = np.mean(all_mae)

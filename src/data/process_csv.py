@@ -99,7 +99,7 @@ def main() -> None:
 		# data[:, 6] = col6
 
 		output_path = f"{output_dir}/{index}_{set_i}.txt"
-		np.savetxt(output_path, data, fmt="%d %f %f %f %f %f %f")
+		np.savetxt(output_path, data, fmt="%d " + " ".join(["%f"] * len(features)))
 
 
 if __name__ == "__main__":

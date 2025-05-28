@@ -24,6 +24,6 @@ folds=$(yq -r '.FOLDS' ${PROJECTDIR}/config.yaml)
 
 for str1 in "${model_strings[@]}"; do
 	for str2 in "${set_strings[@]}"; do
-		./evaluate.py "${MODEL_DIR}/model_${str1}/set_${str2}" "${TRAINDATA_DIR}/model_${str1}/set_${str2}/${str1}_${str2}_test.txt" $folds "${NORM_DATA_DIR}" ${OUTPUT_DIR}" && echo "Done evaluating $str1 model for $str2 set."
+		./evaluate.py "${MODEL_DIR}/model_${str1}/set_${str2}" "${TRAINDATA_DIR}/model_${str1}/set_${str2}/${str1}_${str2}_test.txt" $folds "${NORM_DATA_DIR}" "${OUTPUT_DIR}" && echo "Done evaluating $str1 model for $str2 set."
 	done
 done

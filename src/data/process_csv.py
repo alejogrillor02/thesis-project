@@ -77,9 +77,13 @@ def main() -> None:
 		data[:, 0] = [1 if entry == "M" else 0 for entry in df_i["SEXO"]]
 
 		for i, feature in enumerate(features, start=1):
-			col_data = df_i[feature]
+			if feature == "ESF2+CIL2/2":
+				# Caso especial para feature compuesto
+				col_data = df_i["ESF2"] + (df_i["CIL2"] / 2)
+			else:
+				col_data = df_i[feature]
 
-			data[:, i] = normalizeminmax(col_data, set_i, feature)
+				data[:, i] = normalizeminmax(col_data, set_i, feature)
 
 		# col0 = [1 if entry == "M" else 0 for entry in df_i["SEXO"]]
 		# col1 = normalizeminmax(df_i["REF_ESP"], set_i)

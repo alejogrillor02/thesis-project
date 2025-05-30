@@ -9,7 +9,7 @@ PLACEHOLDER
 
 import numpy as np
 import shap
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 from tensorflow.keras.models import load_model
 import os
 import pandas as pd
@@ -73,36 +73,36 @@ def main():
 	# Aggregate SHAP values across folds
 	shap_values_aggregated = np.mean(shap_values_per_fold, axis=0)
 
-	shap_explanation = shap.Explanation(
-		values=shap_values_aggregated,
-		base_values=np.mean([model.predict(background).mean() for model in models]),  # Average model output
-		data=X_test,
-		feature_names=features
-	)
+	# shap_explanation = shap.Explanation(
+	# 	values=shap_values_aggregated,
+	# 	base_values=np.mean([model.predict(background).mean() for model in models]),  # Average model output
+	# 	data=X_test,
+	# 	feature_names=features
+	# )
 
-	# 1. Beeswarm plot
-	plt.figure(figsize=(12, 8))
-	shap.plots.beeswarm(shap_explanation, show=False)
-	plt.title("SHAP Beeswarm Plot", fontsize=14)
-	plt.tight_layout()
-	plt.savefig(path.join(output_path_base, f'{model_index}_{set_index}_shap_beeswarm.pdf'))
-	plt.close()
+	# # 1. Beeswarm plot
+	# plt.figure(figsize=(12, 8))
+	# shap.plots.beeswarm(shap_explanation, show=False)
+	# plt.title("SHAP Beeswarm Plot", fontsize=14)
+	# plt.tight_layout()
+	# plt.savefig(path.join(output_path_base, f'{model_index}_{set_index}_shap_beeswarm.pdf'))
+	# plt.close()
 
-	# 2. Horizontal bar plot of mean absolute SHAP values
-	plt.figure(figsize=(12, 8))
-	shap.plots.bar(shap_explanation, show=False)
-	plt.title("Feature Importance (Mean Absolute SHAP Value)", fontsize=14)
-	plt.tight_layout()
-	plt.savefig(path.join(output_path_base, f'{model_index}_{set_index}_shap_bar.pdf'))
-	plt.close()
+	# # 2. Horizontal bar plot of mean absolute SHAP values
+	# plt.figure(figsize=(12, 8))
+	# shap.plots.bar(shap_explanation, show=False)
+	# plt.title("Feature Importance (Mean Absolute SHAP Value)", fontsize=14)
+	# plt.tight_layout()
+	# plt.savefig(path.join(output_path_base, f'{model_index}_{set_index}_shap_bar.pdf'))
+	# plt.close()
 
-	# 3. Heatmap visualization
-	plt.figure(figsize=(12, 8))
-	shap.plots.heatmap(shap_explanation, show=False)
-	plt.title("SHAP Heatmap", fontsize=14)
-	plt.tight_layout()
-	plt.savefig(path.join(output_path_base, f'{model_index}_{set_index}_shap_heatmap.pdf'))
-	plt.close()
+	# # 3. Heatmap visualization
+	# plt.figure(figsize=(12, 8))
+	# shap.plots.heatmap(shap_explanation, show=False)
+	# plt.title("SHAP Heatmap", fontsize=14)
+	# plt.tight_layout()
+	# plt.savefig(path.join(output_path_base, f'{model_index}_{set_index}_shap_heatmap.pdf'))
+	# plt.close()
 
 	# # 4. Individual feature plots for top 5 features
 	# top_features = np.argsort(np.mean(np.abs(shap_values_aggregated), axis=0))[-5:][::-1]

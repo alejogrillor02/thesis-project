@@ -22,6 +22,7 @@ TRAINDATA_DIR="${DATA_DIR}/train"
 model_strings=($(yq -r '.MODELS[]' ${PROJECTDIR}/config.yaml))
 set_strings=($(yq -r '.SETS[]' ${PROJECTDIR}/config.yaml))
 folds=$(yq -r '.FOLDS' ${PROJECTDIR}/config.yaml)
+features=($(yq -r '.FEATURES[]' ${PROJECTDIR}/config.yaml))
 
 for str1 in "${model_strings[@]}"; do
 	for str2 in "${set_strings[@]}"; do

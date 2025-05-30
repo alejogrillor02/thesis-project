@@ -8,6 +8,7 @@ env/
 .vscode/
 *.env
 *.secret
+.old/
 config.yml
 secrets.json
 docs/

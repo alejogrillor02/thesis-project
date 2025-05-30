@@ -21,7 +21,7 @@ DATA_DIR=${PROJECTDIR}/$(yq -r '.DATA_DIR' ${PROJECTDIR}/config.yaml)
 MODEL_DIR=${PROJECTDIR}/$(yq -r '.MODEL_DIR' ${PROJECTDIR}/config.yaml)
 OUTPUT_DIR=${PROJECTDIR}/$(yq -r '.OUTPUT_DIR' ${PROJECTDIR}/config.yaml)
 
-bck_path="./.old/$(date '+%F %H.%M.%S')"
+bck_path="${PROJECTDIR}/.old/$(date '+%F %H.%M.%S')"
 paths=(
 	"${DATA_DIR}/train"
 	"${DATA_DIR}/processed"

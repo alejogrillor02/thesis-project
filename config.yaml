@@ -37,8 +37,8 @@ MODELS:
   # - "944"
 SETS:
   - "G"
-  # - "M"
-  # - "F"
+  - "M"
+  - "F"
 FOLDS: 10
 
 # Training

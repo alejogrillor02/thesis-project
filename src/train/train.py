@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 from sys import argv
 from os import makedirs, path
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Dropout
+from tensorflow.keras.layers import Dense  # Dropout
 from tensorflow.keras.activations import relu, sigmoid  # tanh, tanh
 from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.losses import logcosh, mae
@@ -37,9 +37,7 @@ def main():
 
 		model = Sequential([
 			Dense(16, activation=relu, input_shape=(inputs, )),
-			Dropout(0.3),
 			Dense(8, activation=relu),
-			Dropout(0.3),
 			Dense(outputs, activation=sigmoid)
 		])
 

@@ -120,7 +120,7 @@ def main():
 	plt.savefig(path.join(output_path_base, f'{model_index}_{set_index}_fold_{val_fold}_loss.pdf'))
 	plt.close()
 
-	# final_model_path = path.join(output_path_base, f'final_model_fold_{val_fold}.h5')
+	# final_model_path = path.join(output_path_base, f'final_model_fold_{val_fold}.keras')
 	# model.save(final_model_path)
 
 	# Print final metrics

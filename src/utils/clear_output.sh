@@ -27,7 +27,7 @@ paths=(
 	"${DATA_DIR}/processed"
 	"${MODEL_DIR}"
 	"${OUTPUT_DIR}"
-	)
+)
 
 mkdir -pv "$bck_path"
 

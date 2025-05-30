@@ -8,6 +8,7 @@ PLACEHOLDER
 
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 from sys import argv
 from os import makedirs, path
 from tensorflow.keras.models import load_model
@@ -23,15 +24,25 @@ def main():
 		y = data[:, -1]
 		return X, y
 
-	def denormalizeminmax(array: np.array, cmax: float, cmin: float):
-		"""Docstring."""
-		return np.array([normalized_value * (cmax - cmin) + cmin for normalized_value in array])
+	def denormalizeminmax(norm_data: np.array, norm_stats: pd.DataFrame) -> np.array:
+		"""
+		Denormaliza una columna usando las estadísticas guardadas de MinMax.
+
+		Args:
+			data (np.array): Datos normalizados a desnormalizar
+			norm_stats (pd.DataFrame): DataFrame con stats de normalización
+
+		Returns:
+			pd.Series: Datos desnormalizados
+		"""
+
+		return norm_data * (norm_stats['max'] - norm_stats['min']) + norm_stats['min']
 
 	# Parse command line arguments
 	models_path = argv[1]
 	test_data_path = argv[2]
 	n_folds = int(argv[3])
-	# denorm_path = argv[4]
+	denorm_path = argv[4]
 	output_path = argv[5]
 
 	# Parse model and set index
@@ -64,15 +75,12 @@ def main():
 		y_pred = model.predict(X_test).flatten()
 		all_predictions.append(y_pred)
 
-		# (Optional) Denormalize labels
-		# with open(f'{denorm_path}/{model_index}_{set_index}_norm_stats.csv', 'r') as file:
-		# 	last_line = file.readlines()[-1].strip()
-		# 	_label, c_min, c_max = last_line.split(',')
-		# 	c_min = float(c_min)
-		# 	c_max = float(c_max)
+		# Denormalize labels
+		all_stats = pd.read_csv(f'{denorm_path}/{model_index}_norm_stats.csv')
+		norm_stats = all_stats.iloc[-1]
 
-		# y_test = denormalizeminmax(y_test, c_max, c_min)
-		# y_pred = denormalizeminmax(y_pred, c_max, c_min)
+		y_test = denormalizeminmax(y_test, norm_stats)
+		y_pred = denormalizeminmax(y_pred, norm_stats)
 
 		# Calculate metrics
 		mae_score = mean_absolute_error(y_test, y_pred)

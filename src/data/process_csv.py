@@ -64,7 +64,6 @@ def main():
 		scaler = MinMaxScaler()
 		scaler.fit(col_data.values.reshape(-1, 1))  # Ajustar el scaler (pero no transformar)
 
-		# Crear dataframe con las estadísticas
 		norm_stats.append({
 			'feature': feature,
 			'min': scaler.data_min_[0],

@@ -38,11 +38,11 @@ MODELS:
   # - "944"
 SETS:
   - "G"
-  - "M"
-  - "F"
+  # - "M"
+  # - "F"
 FOLDS: 10
 
 # Training
-EPOCHS: 200
+EPOCHS: 1000
 BATCH_SIZE: 500
-LEARNING_RATE: 0.01
+LEARNING_RATE: 0.001

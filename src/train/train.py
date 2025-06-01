@@ -48,6 +48,7 @@ def main():
 	N_FOLDS = int(argv[3])
 	EPOCHS = int(argv[4])
 	BATCH_SIZE = int(argv[5])
+	LEARNING_RATE = float(argv[6])
 
 	# Parse the model and set index
 	parts = training_set_path.strip("/").split("/")
@@ -57,7 +58,7 @@ def main():
 	model_index = model_dir.split("_")[1]
 	set_index = set_dir.split("_")[1]
 
-	output_path = argv[6]
+	output_path = argv[7]
 	output_path_base = f"{output_path}/model_{model_index}/set_{set_index}"
 	makedirs(output_path_base, exist_ok=True)
 
@@ -84,7 +85,7 @@ def main():
 	n_labels = 1
 	model = create_model(n_features, n_labels)
 	model.compile(
-		optimizer=Adam(learning_rate=0.001),
+		optimizer=Adam(learning_rate=LEARNING_RATE),
 		loss=logcosh,
 		metrics=[mae]
 	)

@@ -13,7 +13,7 @@ if [[ ! -f "${PROJECTDIR}/config.yaml" ]]; then
 	echo "Error: config.yaml not found in project root!" >&2
 	exit 1
 fi
-export PROJECTDIR
+export PROJECT_ROOT="$PROJECTDIR"
 
 OUTPUT_DIR=${PROJECTDIR}/$(yq -r '.OUTPUT_DIR' ${PROJECTDIR}/config.yaml)
 MODEL_DIR=${PROJECTDIR}/$(yq -r '.MODEL_DIR' ${PROJECTDIR}/config.yaml)

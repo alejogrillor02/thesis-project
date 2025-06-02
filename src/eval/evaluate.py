@@ -16,8 +16,9 @@ Argumentos:
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+import yaml
 from sys import argv
-from os import makedirs, path
+from os import makedirs, path, environ
 from tensorflow.keras.models import load_model
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
@@ -57,9 +58,14 @@ def main():
 	# Parse command line arguments
 	models_path = argv[1]
 	test_data_path = argv[2]
-	n_folds = int(argv[3])
-	denorm_path = argv[4]
-	output_path = argv[5]
+	denorm_path = argv[3]
+	output_path = argv[4]
+
+	config_path = path.join(environ['PROJECT_ROOT'], 'config.yaml')
+	with open(config_path, 'r') as f:
+		config = yaml.safe_load(f)
+
+	N_FOLDS = config['N_FOLDS']
 
 	# Parse model and set index
 	parts = models_path.strip("/").split("/")
@@ -87,7 +93,7 @@ def main():
 	all_r2 = []
 	all_predictions = []
 
-	for fold_num in range(1, n_folds + 1):
+	for fold_num in range(1, N_FOLDS + 1):
 		model_path = path.join(
 			models_path, f'{model_index}_{set_index}_fold_{fold_num}.keras')
 

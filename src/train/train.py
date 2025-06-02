@@ -48,7 +48,7 @@ def main():
 	N_FOLDS = int(argv[3])
 	EPOCHS = int(argv[4])
 	BATCH_SIZE = int(argv[5])
-	LEARNING_RATE = float(argv[6])
+	# LEARNING_RATE = float(argv[6])
 
 	# Parse the model and set index
 	parts = training_set_path.strip("/").split("/")
@@ -85,7 +85,7 @@ def main():
 	n_labels = 1
 	model = create_model(n_features, n_labels)
 	model.compile(
-		optimizer=Adam(learning_rate=LEARNING_RATE),
+		optimizer=Adam(learning_rate=0.01),
 		loss=logcosh,
 		metrics=[mae]
 	)

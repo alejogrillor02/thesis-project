@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-# TODO: Write Docstrings...
 """
 PUBLIC DOCSTRING.
 
@@ -11,15 +10,17 @@ import numpy as np
 import shap
 import yaml
 import pandas as pd
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 from tensorflow.keras.models import load_model
 from os import makedirs, path, environ
 from sys import argv
 
 
 def main():
+
 	def load_fold_data(fold_path, fold_number):
 		"""Load fold data from text file"""
+
 		filename = f"{model_index}_{set_index}_fold_{fold_number}.txt"
 		filepath = path.join(fold_path, filename)
 		data = np.loadtxt(filepath)
@@ -75,58 +76,46 @@ def main():
 		shap_values = explainer.shap_values(X_test)
 		shap_values_per_fold.append(shap_values)
 
-	# Aggregate SHAP values across folds
-	shap_values_aggregated = np.mean(shap_values_per_fold, axis=0)
+	# # Aggregate SHAP values across folds
+	# shap_values_aggregated = np.mean(shap_values_per_fold, axis=0)
 
-	# shap_explanation = shap.Explanation(
-	# 	values=shap_values_aggregated,
-	# 	base_values=np.mean([model.predict(background).mean() for model in models]),  # Average model output
-	# 	data=X_test,
-	# 	feature_names=features
-	# )
+	# mean_abs_shap = pd.DataFrame({
+	# 	'feature': FEATURES,
+	# 	'mean_abs_shap': np.mean(np.abs(shap_values_aggregated), axis=0)
+	# }).sort_values('mean_abs_shap', ascending=False)
 
-	# # 1. Beeswarm plot
-	# plt.figure(figsize=(12, 8))
-	# shap.plots.beeswarm(shap_explanation, show=False)
-	# plt.title("SHAP Beeswarm Plot", fontsize=14)
-	# plt.tight_layout()
-	# plt.savefig(path.join(output_path_base, f'{model_index}_{set_index}_shap_beeswarm.pdf'))
-	# plt.close()
+	# mean_abs_shap.to_csv(path.join(output_path_base, f'{model_index}_{set_index}_shap_feature_importance.csv'), index=False)
 
-	# # 2. Horizontal bar plot of mean absolute SHAP values
-	# plt.figure(figsize=(12, 8))
-	# shap.plots.bar(shap_explanation, show=False)
-	# plt.title("Feature Importance (Mean Absolute SHAP Value)", fontsize=14)
-	# plt.tight_layout()
-	# plt.savefig(path.join(output_path_base, f'{model_index}_{set_index}_shap_bar.pdf'))
-	# plt.close()
+	# array 3D (folds, samples, features)
+	shap_values_array = np.array(shap_values_per_fold)
 
-	# # 3. Heatmap visualization
-	# plt.figure(figsize=(12, 8))
-	# shap.plots.heatmap(shap_explanation, show=False)
-	# plt.title("SHAP Heatmap", fontsize=14)
-	# plt.tight_layout()
-	# plt.savefig(path.join(output_path_base, f'{model_index}_{set_index}_shap_heatmap.pdf'))
-	# plt.close()
+	# Calcular el valor absoluto medio de SHAP para cada feature a través de todos los folds y muestras
+	mean_abs_shap = np.mean(np.abs(shap_values_array), axis=(0, 1))
 
-	# # 4. Individual feature plots for top 5 features
-	# top_features = np.argsort(np.mean(np.abs(shap_values_aggregated), axis=0))[-5:][::-1]
-	# for i, feature_idx in enumerate(top_features):
-	#     plt.figure(figsize=(10, 6))
-	#     shap.plots.scatter(shap_explanation[:, feature_idx], show=False)
-	#     plt.title(f"SHAP Dependency Plot for {features[feature_idx]}", fontsize=12)
-	#     plt.tight_layout()
-	#     plt.savefig(path.join(output_path_base,
-	#                         f'{model_index}_{set_index}_shap_feature_{i+1}_{features[feature_idx]}.png'),
-	#                 bbox_inches="tight", dpi=300)
-	#     plt.close()
+	# Crear un DataFrame para facilitar el manejo
+	importance_df = pd.DataFrame({
+		'Feature': FEATURES[1:],  # Asumiendo que FEATURES[0] es el índice que eliminaste
+		'SHAP_importance': mean_abs_shap
+	})
 
-	mean_abs_shap = pd.DataFrame({
-		'feature': FEATURES,
-		'mean_abs_shap': np.mean(np.abs(shap_values_aggregated), axis=0)
-	}).sort_values('mean_abs_shap', ascending=False)
+	# Ordenar las features por importancia
+	importance_df = importance_df.sort_values('SHAP_importance', ascending=False)
 
-	mean_abs_shap.to_csv(path.join(output_path_base, f'{model_index}_{set_index}_shap_feature_importance.csv'), index=False)
+	# Crear el gráfico de barras
+	plt.figure(figsize=(12, 8))
+	plt.barh(importance_df['Feature'], importance_df['SHAP_importance'], color='skyblue')
+	plt.xlabel('Importancia media absoluta SHAP', fontsize=12)
+	plt.ylabel('Feature', fontsize=12)
+	plt.title('Importancia de Features según SHAP Values', fontsize=14)
+	plt.gca().invert_yaxis()  # Mostrar la feature más importante arriba
+
+	# Ajustar el layout para que los nombres de las features no se corten
+	plt.tight_layout()
+
+	# Guardar el gráfico
+	plot_path = f"{output_path_base}/feature_importance_shap.pdf"
+	plt.savefig(plot_path)
+	plt.close()
 
 
 if __name__ == "__main__":

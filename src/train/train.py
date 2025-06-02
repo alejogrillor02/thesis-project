@@ -88,6 +88,7 @@ def main():
 		optimizer=Adam(learning_rate=0.001),
 		loss=logcosh,
 		metrics=[mae]
+		random_state=None
 	)
 
 	# Set up model checkpoint to save the best model

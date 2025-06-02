@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+# TODO: Escribir esto
 """
 PUBLIC DOCSTRING.
 
@@ -103,12 +104,13 @@ def main():
 	mean_r2 = np.mean(all_r2)
 	std_r2 = np.std(all_r2)
 
+	# TODO: Save these values in a csv
 	print("\nAggregated Performance Across Folds:")
 	print(f"Mean MAE: {mean_mae:.4f} ± {std_mae:.4f}")
 	print(f"Mean MSE: {mean_mse:.4f} ± {std_mse:.4f}")
 	print(f"Mean R²: {mean_r2:.4f} ± {std_r2:.4f}")
 
-	# Optionally: Calculate metrics on mean predictions
+	# Compute metrics on mean predictions
 	mean_predictions = np.mean(np.array(all_predictions), axis=0)
 	ensemble_mae = mean_absolute_error(y_test, mean_predictions)
 	ensemble_mse = mean_squared_error(y_test, mean_predictions)

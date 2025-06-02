@@ -13,7 +13,7 @@ from sklearn.model_selection import GridSearchCV
 from tensorflow.keras.wrappers.scikit_learn import KerasRegressor
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout
-from tensorflow.keras.activations import relu, sigmoid  # tanh, tanh
+from tensorflow.keras.activations import relu, sigmoid  # tanh
 from tensorflow.keras.regularizers import l2
 from tensorflow.keras.losses import logcosh, mae
 from tensorflow.keras.optimizers import Adam

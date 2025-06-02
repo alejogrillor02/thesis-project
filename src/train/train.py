@@ -10,8 +10,9 @@ PLACEHOLDER
 
 import numpy as np
 import matplotlib.pyplot as plt
+import yaml
 from sys import argv
-from os import makedirs, path
+from os import makedirs, path, environ
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense  # Dropout
 from tensorflow.keras.activations import relu, sigmoid  # tanh, tanh
@@ -45,9 +46,15 @@ def main():
 
 	training_set_path = argv[1]
 	val_fold = int(argv[2])
-	N_FOLDS = int(argv[3])
-	EPOCHS = int(argv[4])
-	BATCH_SIZE = int(argv[5])
+
+	config_path = path.join(environ['PROJECT_ROOT'], 'config.yaml')
+	with open(config_path, 'r') as f:
+		config = yaml.safe_load(f)
+
+	N_FOLDS = config['N_FOLDS']
+	EPOCHS = config['EPOCHS']
+	BATCH_SIZE = config['BATCH_SIZE']
+	LEARNING_RATE = config['LEARNING_RATE']
 
 	# Parse the model and set index
 	parts = training_set_path.strip("/").split("/")
@@ -57,7 +64,7 @@ def main():
 	model_index = model_dir.split("_")[1]
 	set_index = set_dir.split("_")[1]
 
-	output_path = argv[6]
+	output_path = argv[3]
 	output_path_base = f"{output_path}/model_{model_index}/set_{set_index}"
 	makedirs(output_path_base, exist_ok=True)
 
@@ -74,7 +81,8 @@ def main():
 			y_train_parts.append(y)
 
 	# Concatenate all training parts
-	X_train = np.delete(np.concatenate(X_train_parts, axis=0), 0, axis=1)  # np.concatenate(X_train_parts, axis=0)
+	# np.concatenate(X_train_parts, axis=0)
+	X_train = np.delete(np.concatenate(X_train_parts, axis=0), 0, axis=1)
 	y_train = np.concatenate(y_train_parts, axis=0)
 
 	X_val = np.delete(X_val, 0, axis=1)
@@ -84,13 +92,14 @@ def main():
 	n_labels = 1
 	model = create_model(n_features, n_labels)
 	model.compile(
-		optimizer=Adam(learning_rate=0.001),
+		optimizer=Adam(learning_rate=LEARNING_RATE),
 		loss=logcosh,
 		metrics=[mae]
 	)
 
 	# Set up model checkpoint to save the best model
-	model_path = path.join(output_path_base, f'{model_index}_{set_index}_fold_{val_fold}.keras')
+	model_path = path.join(
+		output_path_base, f'{model_index}_{set_index}_fold_{val_fold}.keras')
 	checkpoint = ModelCheckpoint(
 		model_path,
 		save_best_only=True,
@@ -119,13 +128,6 @@ def main():
 	plt.legend()
 	plt.savefig(path.join(output_path_base, f'{model_index}_{set_index}_fold_{val_fold}_loss.pdf'))
 	plt.close()
-
-	# final_model_path = path.join(output_path_base, f'final_model_fold_{val_fold}.keras')
-	# model.save(final_model_path)
-
-	# Print final metrics
-	# final_train_loss, final_train_acc = model.evaluate(X_train, y_train, verbose=0)
-	# final_val_loss, final_val_acc = model.evaluate(X_val, y_val, verbose=0)
 
 
 if __name__ == "__main__":

@@ -1,31 +1,36 @@
 #!/usr/bin/env python
-# Author: alejo.grillor02
 
 # TODO: Reescribir esto.
 """
 Genera folds de entrenamiento.
 
 Usage:
-	kfold.py <input_dataset> <n_folds> [output_path] <features>
+	kfold.py <input_dataset> [output_path]
 """
 
 import numpy as np
+import yaml
 from sys import argv
-from os import path, makedirs
+from os import path, makedirs, environ
 from sklearn.model_selection import StratifiedKFold, KFold
 
 
 def main():
 
 	input_dataset = argv[1]
-	n_folds = int(argv[2])
 	model_index = path.basename(input_dataset)[:3]
 	set_index = path.basename(input_dataset)[4]
-	features = argv[4:]
 
-	output_path = argv[3]
+	output_path = argv[2]
 	output_path_base = f"{output_path}/model_{model_index}/set_{set_index}"
 	makedirs(output_path_base, exist_ok=True)
+
+	config_path = path.join(environ['PROJECT_ROOT'], 'config.yaml')
+	with open(config_path, 'r') as f:
+		config = yaml.safe_load(f)
+
+	N_FOLDS = config['N_FOLDS']
+	FEATURES = config['FEATURES']
 
 	data = np.loadtxt(input_dataset)
 
@@ -35,17 +40,17 @@ def main():
 
 	# Configurar el tipo de KFold según el set
 	if set_index == "G":
-		kf = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=None)
+		kf = StratifiedKFold(n_splits=N_FOLDS, shuffle=True, random_state=None)
 		split_generator = kf.split(X, y)
 	else:
-		kf = KFold(n_splits=n_folds, shuffle=True, random_state=None)
+		kf = KFold(n_splits=N_FOLDS, shuffle=True, random_state=None)
 		split_generator = kf.split(X)
 
 	# Generar los folds de entrenamiento
 	for fold_idx, (train_idx, test_idx) in enumerate(split_generator, 1):
 		train_data = np.column_stack((y[train_idx], X[train_idx]))
 
-		np.savetxt(f"{output_path_base}/{model_index}_{set_index}_fold_{fold_idx}.txt", train_data, fmt="%d " + " ".join(["%f"] * len(features)))
+		np.savetxt(f"{output_path_base}/{model_index}_{set_index}_fold_{fold_idx}.txt", train_data, fmt="%d " + " ".join(["%f"] * len(FEATURES)))
 
 
 if __name__ == "__main__":

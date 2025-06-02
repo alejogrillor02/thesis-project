@@ -6,13 +6,14 @@
 Genera los conjuntos (Sin Particionar) de entrenamiento y el conjunto de tests.
 
 Usage:
-	process.py <input_csv> [output_dir] <features>
+	process.py <input_csv> [output_path]
 """
 
 import pandas as pd
 import numpy as np
+import yaml
 from sys import argv
-from os import path, makedirs
+from os import path, makedirs, environ
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
 
@@ -45,7 +46,13 @@ def main():
 	input_path = argv[1]
 	model_index = path.basename(input_path)[:3]
 	output_dir = argv[2]
-	features = argv[3:]
+
+	config_path = path.join(environ['PROJECT_ROOT'], 'config.yaml')
+	with open(config_path, 'r') as f:
+		config = yaml.safe_load(f)
+
+	FEATURES = config['FEATURES']
+	RANDOM_STATE = config['RANDOM_STATE']
 
 	makedirs(output_dir, exist_ok=True)
 
@@ -53,7 +60,7 @@ def main():
 	norm_stats = []
 
 	# Guardar los stats de normalización
-	for feature in features:
+	for feature in FEATURES:
 		if feature == "ESF2+CIL2/2":
 			# Caso especial para feature compuesto
 			col_data = df["ESF2"] + (df["CIL2"] / 2)
@@ -79,12 +86,12 @@ def main():
 
 	u_size = min(len(df_f), len(df_m))
 
-	df_f = df_f.sample(n=u_size, random_state=None)
-	df_m = df_m.sample(n=u_size, random_state=None)
+	df_f = df_f.sample(n=u_size, random_state=RANDOM_STATE)
+	df_m = df_m.sample(n=u_size, random_state=RANDOM_STATE)
 
 	# Hace un sample aleatorio de u_size filas
-	df_f_train, df_f_test = train_test_split(df_f, test_size=0.2, random_state=None)
-	df_m_train, df_m_test = train_test_split(df_m, test_size=0.2, random_state=None)
+	df_f_train, df_f_test = train_test_split(df_f, test_size=0.2, random_state=RANDOM_STATE)
+	df_m_train, df_m_test = train_test_split(df_m, test_size=0.2, random_state=RANDOM_STATE)
 
 	# Tamaño uniforme
 	u_train_size = min(df_f_train.shape[0], df_m_train.shape[0])
@@ -96,18 +103,18 @@ def main():
 	df_f_test_sample_g = df_f_test.sample(n=u_test_size // 2)
 	df_m_test_sample_g = df_m_test.sample(n=u_test_size // 2)
 
-	df_g_train = pd.concat([df_f_sample_g, df_m_sample_g]).sample(frac=1, random_state=None).reset_index(drop=True)
-	df_g_test = pd.concat([df_f_test_sample_g, df_m_test_sample_g]).sample(frac=1, random_state=None).reset_index(drop=True)
+	df_g_train = pd.concat([df_f_sample_g, df_m_sample_g]).sample(frac=1, random_state=RANDOM_STATE).reset_index(drop=True)
+	df_g_test = pd.concat([df_f_test_sample_g, df_m_test_sample_g]).sample(frac=1, random_state=RANDOM_STATE).reset_index(drop=True)
 
 	for df_i, df_i_test, set_i in ((df_f_train, df_f_test, "F"), (df_m_train, df_m_test, "M"), (df_g_train, df_g_test, "G")):
 
-		data = np.empty((len(df_i), len(features) + 1))
+		data = np.empty((len(df_i), len(FEATURES) + 1))
 		data[:, 0] = [1 if entry == "M" else 0 for entry in df_i["SEXO"]]
 
-		data_test = np.empty((len(df_i_test), len(features) + 1))
+		data_test = np.empty((len(df_i_test), len(FEATURES) + 1))
 		data_test[:, 0] = [1 if entry == "M" else 0 for entry in df_i_test["SEXO"]]
 
-		for i, feature in enumerate(features, start=1):
+		for i, feature in enumerate(FEATURES, start=1):
 			if feature == "ESF2+CIL2/2":
 				# Caso especial para feature compuesto
 				col_data = df_i["ESF2"] + (df_i["CIL2"] / 2)
@@ -120,8 +127,8 @@ def main():
 
 		output_path = f"{output_dir}/{model_index}_{set_i}.txt"
 		output_path_test = f"{output_dir}/{model_index}_{set_i}_test.txt"
-		np.savetxt(output_path, data, fmt="%d " + " ".join(["%f"] * len(features)))
-		np.savetxt(output_path_test, data_test, fmt="%d " + " ".join(["%f"] * len(features)))
+		np.savetxt(output_path, data, fmt="%d " + " ".join(["%f"] * len(FEATURES)))
+		np.savetxt(output_path_test, data_test, fmt="%d " + " ".join(["%f"] * len(FEATURES)))
 
 
 if __name__ == "__main__":

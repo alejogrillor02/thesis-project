@@ -40,12 +40,10 @@ SETS:
   - "G"
   - "M"
   - "F"
-FOLDS: 10
+N_FOLDS: 10
 
 # Training
 EPOCHS: 1000
 BATCH_SIZE: 500
-<<<<<<< HEAD
-=======
 LEARNING_RATE: 0.001
->>>>>>> parent of 5a00edb (fucked up)
+RANDOM_STATE: 39

@@ -137,7 +137,7 @@ def main():
 		plt.xlabel('Actual Values')
 		plt.ylabel('Predicted Values')
 		plt.title('Actual vs Predicted Values')
-		plt.savefig(path.join(output_path_base, f'{model_index}_{set_index}_test_predictions.pdf'))
+		plt.savefig(path.join(output_path_base, f'{model_index}_{set_index}_fold_{fold_num}_predictions.pdf'))
 		plt.close()
 
 	# Compute mean and std of metrics across folds

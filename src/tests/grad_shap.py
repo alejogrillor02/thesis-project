@@ -9,12 +9,12 @@ PLACEHOLDER
 
 import numpy as np
 import shap
+import yaml
+import pandas as pd
 # import matplotlib.pyplot as plt
 from tensorflow.keras.models import load_model
-import os
-import pandas as pd
+from os import makedirs, path, environ
 from sys import argv
-from os import path
 
 
 def main():
@@ -30,9 +30,14 @@ def main():
 	# Parse command line arguments
 	model_path = argv[1]
 	training_set_path = argv[2]
-	n_folds = int(argv[3])
-	output_path = argv[4]
-	features = argv[5:]
+	output_path = argv[3]
+
+	config_path = path.join(environ['PROJECT_ROOT'], 'config.yaml')
+	with open(config_path, 'r') as f:
+		config = yaml.safe_load(f)
+
+	N_FOLDS = config['N_FOLDS']
+	FEATURES = config['FEATURES']
 
 	parts = model_path.strip("/").split("/")
 	relevant_parts = parts[-2:]
@@ -42,15 +47,15 @@ def main():
 	set_index = set_dir.split("_")[1]
 
 	output_path_base = f"{output_path}/model_{model_index}/set_{set_index}"
-	os.makedirs(output_path_base, exist_ok=True)
+	makedirs(output_path_base, exist_ok=True)
 
 	# Load models
-	model_paths = [f"{model_path}/{model_index}_{set_index}_fold_{i}.keras" for i in range(1, n_folds + 1)]
+	model_paths = [f"{model_path}/{model_index}_{set_index}_fold_{i}.keras" for i in range(1, N_FOLDS + 1)]
 	models = [load_model(path) for path in model_paths]
 
 	# Load training data
 	X_train_parts = []
-	for fold_num in range(1, n_folds + 1):
+	for fold_num in range(1, N_FOLDS + 1):
 		X, _y = load_fold_data(training_set_path, fold_num)
 		X_train_parts.append(X)
 
@@ -117,7 +122,7 @@ def main():
 	#     plt.close()
 
 	mean_abs_shap = pd.DataFrame({
-		'feature': features,
+		'feature': FEATURES,
 		'mean_abs_shap': np.mean(np.abs(shap_values_aggregated), axis=0)
 	}).sort_values('mean_abs_shap', ascending=False)
 

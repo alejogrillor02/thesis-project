@@ -43,7 +43,7 @@ def main():
 
 	def denormalizeminmax(norm_data: np.array, norm_stats: pd.DataFrame) -> np.array:
 		"""
-		Denormaliza una columna usando las estadísticas guardadas de MinMax.
+		Desnormaliza una columna usando las estadísticas guardadas de MinMax.
 
 		Args:
 				data (np.array): Datos normalizados a desnormalizar

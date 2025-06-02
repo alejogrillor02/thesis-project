@@ -86,35 +86,35 @@ def main():
 
 	# mean_abs_shap.to_csv(path.join(output_path_base, f'{model_index}_{set_index}_shap_feature_importance.csv'), index=False)
 
-	# array 3D (folds, samples, features)
+	# Convertir la lista de arrays en un array 3D (folds, samples, features)
 	shap_values_array = np.array(shap_values_per_fold)
 
-	# Calcular el valor absoluto medio de SHAP para cada feature a través de todos los folds y muestras
-	mean_abs_shap = np.mean(np.abs(shap_values_array), axis=(0, 1))
+	# Calcular la media de SHAP para cada feature (conservando el signo)
+	mean_shap = np.mean(shap_values_array, axis=(0, 1))
 
-	# Crear un DataFrame para facilitar el manejo
+	# Crear DataFrame
 	importance_df = pd.DataFrame({
-		'Feature': FEATURES[1:],  # Asumiendo que FEATURES[0] es el índice que eliminaste
-		'SHAP_importance': mean_abs_shap
+		'Feature': FEATURES,
+		'SHAP_mean': mean_shap
 	})
 
-	# Ordenar las features por importancia
-	importance_df = importance_df.sort_values('SHAP_importance', ascending=False)
+	# Ordenar por importancia absoluta para el gráfico
+	importance_df = importance_df.sort_values('SHAP_abs_mean', ascending=False)
 
-	# Crear el gráfico de barras
+	# Gráfico de importancia bruta
 	plt.figure(figsize=(12, 8))
-	plt.barh(importance_df['Feature'], importance_df['SHAP_importance'], color='skyblue')
-	plt.xlabel('Importancia media absoluta SHAP', fontsize=12)
+	plt.barh(
+		importance_df['Feature'], importance_df['SHAP_mean'],
+		color=np.where(importance_df['SHAP_mean'] > 0, 'skyblue', 'salmon')
+	)
+	plt.xlabel('Valor SHAP promedio', fontsize=12)
 	plt.ylabel('Feature', fontsize=12)
-	plt.title('Importancia de Features según SHAP Values', fontsize=14)
-	plt.gca().invert_yaxis()  # Mostrar la feature más importante arriba
-
-	# Ajustar el layout para que los nombres de las features no se corten
+	plt.title('Impacto de Features en la Predicción (SHAP Values)', fontsize=14)
+	plt.axvline(0, color='black', linestyle='--', linewidth=0.5)
+	plt.gca().invert_yaxis()
 	plt.tight_layout()
-
-	# Guardar el gráfico
-	plot_path = f"{output_path_base}/feature_importance_shap.pdf"
-	plt.savefig(plot_path)
+	plot_path_signed = f"{output_path_base}/feature_impact_shap_signed.pdf"
+	plt.savefig(plot_path_signed)
 	plt.close()
 
 

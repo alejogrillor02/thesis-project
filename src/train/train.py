@@ -85,7 +85,7 @@ def main():
 	n_labels = 1
 	model = create_model(n_features, n_labels)
 	model.compile(
-		optimizer=Adam(learning_rate=0.01),
+		optimizer=Adam(learning_rate=0.001),
 		loss=logcosh,
 		metrics=[mae]
 	)

@@ -18,7 +18,7 @@ from tensorflow.keras.layers import Dense, Dropout, BatchNormalization
 from tensorflow.keras.activations import relu  # sigmoid, tanh
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
 from tensorflow.keras.losses import mae, logcosh
-from tensorflow.kears.regularizers import l2
+from tensorflow.keras.regularizers import l2
 from tensorflow.keras.optimizers import Adam
 
 
@@ -47,7 +47,7 @@ def main():
 			Dense(32, activation=relu),
 			Dense(outputs)
 		])
-		
+
 		return model
 
 	model_index = argv[1]

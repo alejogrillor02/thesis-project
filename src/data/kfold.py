@@ -21,10 +21,6 @@ def main():
 	model_index = path.basename(input_dataset)[:3]
 	set_index = path.basename(input_dataset)[4]
 
-	output_path = argv[2]
-	output_path_base = f"{output_path}/model_{model_index}/set_{set_index}"
-	makedirs(output_path_base, exist_ok=True)
-
 	config_path = path.join(environ['PROJECT_ROOT'], 'config.yaml')
 	with open(config_path, 'r') as f:
 		config = yaml.safe_load(f)
@@ -32,7 +28,12 @@ def main():
 	N_FOLDS = config['N_FOLDS']
 	FEATURES = config['FEATURES']
 	RANDOM_STATE = config['RANDOM_STATE']
+	DATA_DIR = config['DATA_DIR']
 
+	output_path = path.join(DATA_DIR, "train")
+	output_path_base = f"{output_path}/model_{model_index}/set_{set_index}"
+	makedirs(output_path_base, exist_ok=True)
+	
 	data = np.loadtxt(input_dataset)
 
 	# Separar características y etiquetas (Solo es util para G?)

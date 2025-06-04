@@ -45,7 +45,6 @@ def main():
 
 	input_path = argv[1]
 	model_index = path.basename(input_path)[:3]
-	output_dir = argv[2]
 
 	config_path = path.join(environ['PROJECT_ROOT'], 'config.yaml')
 	with open(config_path, 'r') as f:
@@ -53,7 +52,10 @@ def main():
 
 	FEATURES = config['FEATURES']
 	RANDOM_STATE = config['RANDOM_STATE']
+	MODELS = config['MODELS']
+	DATA_DIR = config['DATA_DIR']
 
+	output_dir = path.join(DATA_DIR, "processed")
 	makedirs(output_dir, exist_ok=True)
 
 	df = pd.read_csv(input_path)
@@ -106,7 +108,15 @@ def main():
 	df_g_train = pd.concat([df_f_sample_g, df_m_sample_g]).sample(frac=1, random_state=RANDOM_STATE).reset_index(drop=True)
 	df_g_test = pd.concat([df_f_test_sample_g, df_m_test_sample_g]).sample(frac=1, random_state=RANDOM_STATE).reset_index(drop=True)
 
-	for df_i, df_i_test, set_i in ((df_f_train, df_f_test, "F"), (df_m_train, df_m_test, "M"), (df_g_train, df_g_test, "G")):
+	set_list = []
+	for model in MODELS:
+		set_list.append(
+			(df_f_train, df_f_test, model) if model == "F" else
+			(df_m_train, df_m_test, "M") if model == "M" else
+			(df_g_train, df_g_test, "G")
+		)
+
+	for df_i, df_i_test, set_i in set_list:
 
 		data = np.empty((len(df_i), len(FEATURES) + 1))
 		data[:, 0] = [1 if entry == "M" else 0 for entry in df_i["SEXO"]]
@@ -119,6 +129,9 @@ def main():
 				# Caso especial para feature compuesto
 				col_data = df_i["ESF2"] + (df_i["CIL2"] / 2)
 				col_test_data = df_i_test["ESF2"] + (df_i_test["CIL2"] / 2)
+			elif feature == "DELTA_REF":
+				col_data = df_i["ESF2"] + (df_i["CIL2"] / 2) - df_i["REF_ESP"]
+				col_test_data = df_i_test["ESF2"] + (df_i_test["CIL2"] / 2) - df_i_test["REF_ESP"]
 			else:
 				col_data = df_i[feature]
 				col_test_data = df_i_test[feature]

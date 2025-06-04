@@ -14,10 +14,10 @@ import yaml
 from sys import argv
 from os import makedirs, path, environ
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense  # Dropout
-from tensorflow.keras.activations import relu, sigmoid  # tanh, tanh
+from tensorflow.keras.layers import Dense, Dropout
+from tensorflow.keras.activations import relu  # sigmoid, tanh
 from tensorflow.keras.callbacks import ModelCheckpoint
-from tensorflow.keras.losses import logcosh, mae
+from tensorflow.keras.losses import mae  # logcosh
 from tensorflow.keras.optimizers import Adam
 
 
@@ -37,15 +37,17 @@ def main():
 		"""Docstring."""
 
 		model = Sequential([
-			Dense(16, activation=relu, input_shape=(inputs, )),
-			Dense(8, activation=relu),
-			Dense(outputs, activation=sigmoid)
+			Dense(64, activation=relu, input_shape=(inputs, )),
+			Dropout(0.3),
+			Dense(32, activation=relu),
+			Dense(outputs)
 		])
 
 		return model
 
-	training_set_path = argv[1]
-	val_fold = int(argv[2])
+	model_index = argv[1]
+	set_index = argv[2]
+	val_fold = int(argv[3])
 
 	config_path = path.join(environ['PROJECT_ROOT'], 'config.yaml')
 	with open(config_path, 'r') as f:
@@ -56,17 +58,10 @@ def main():
 	BATCH_SIZE = config['BATCH_SIZE']
 	LEARNING_RATE = config['LEARNING_RATE']
 
-	# Parse the model and set index
-	parts = training_set_path.strip("/").split("/")
-	relevant_parts = parts[-2:]
-	model_dir = relevant_parts[-2]  # 'model_XXX'
-	set_dir = relevant_parts[-1]    # 'set_Y'
-	model_index = model_dir.split("_")[1]
-	set_index = set_dir.split("_")[1]
+	TRAINDATA_DIR = path.join(config['DATA_DIR'], f"train/model_{model_index}/set_{set_index}")
 
-	output_path = argv[3]
-	output_path_base = f"{output_path}/model_{model_index}/set_{set_index}"
-	makedirs(output_path_base, exist_ok=True)
+	output_path = path.join(config['MODEL_DIR'], f"model_{model_index}/set_{set_index}")
+	makedirs(output_path, exist_ok=True)
 
 	# Cargar el set de training y de validación
 	X_train_parts = []
@@ -74,14 +69,13 @@ def main():
 
 	for fold_num in range(1, N_FOLDS + 1):
 		if fold_num == val_fold:
-			X_val, y_val = load_fold_data(training_set_path, fold_num)
+			X_val, y_val = load_fold_data(TRAINDATA_DIR, fold_num)
 		else:
-			X, y = load_fold_data(training_set_path, fold_num)
+			X, y = load_fold_data(TRAINDATA_DIR, fold_num)
 			X_train_parts.append(X)
 			y_train_parts.append(y)
 
 	# Concatenate all training parts
-	# np.concatenate(X_train_parts, axis=0)
 	X_train = np.delete(np.concatenate(X_train_parts, axis=0), 0, axis=1)
 	y_train = np.concatenate(y_train_parts, axis=0)
 
@@ -93,13 +87,13 @@ def main():
 	model = create_model(n_features, n_labels)
 	model.compile(
 		optimizer=Adam(learning_rate=LEARNING_RATE),
-		loss=logcosh,
+		loss=mae,
 		metrics=[mae]
 	)
 
 	# Set up model checkpoint to save the best model
 	model_path = path.join(
-		output_path_base, f'{model_index}_{set_index}_fold_{val_fold}.keras')
+		output_path, f'{model_index}_{set_index}_fold_{val_fold}.keras')
 	checkpoint = ModelCheckpoint(
 		model_path,
 		save_best_only=True,
@@ -126,7 +120,7 @@ def main():
 	plt.xlabel('Epoch')
 	plt.ylabel('Loss')
 	plt.legend()
-	plt.savefig(path.join(output_path_base, f'{model_index}_{set_index}_fold_{val_fold}_loss.pdf'))
+	plt.savefig(path.join(output_path, f'{model_index}_{set_index}_fold_{val_fold}_loss.pdf'))
 	plt.close()
 
 

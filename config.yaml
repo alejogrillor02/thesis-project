@@ -17,6 +17,7 @@ FEATURES:
   # - "AVSC2"
   # - "AVCC2"
   - "ESF2+CIL2/2" # ORIG
+  - "DELTA_REF" # ESF2 + CIL2/2 - REF_ESP
   # - "ESF2"
   # - "CIL2"
   # - "EJE2"

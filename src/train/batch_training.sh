@@ -14,9 +14,6 @@ if [[ ! -f "${PROJECTDIR}/config.yaml" ]]; then
 fi
 export PROJECT_ROOT="$PROJECTDIR"
 
-TRAINDATA_DIR="${PROJECTDIR}/$(yq -r '.DATA_DIR' ${PROJECTDIR}/config.yaml)/train"
-MODEL_DIR=${PROJECTDIR}/$(yq -r '.MODEL_DIR' ${PROJECTDIR}/config.yaml)
-
 model_strings=($(yq -r '.MODELS[]' ${PROJECTDIR}/config.yaml))
 set_strings=($(yq -r '.SETS[]' ${PROJECTDIR}/config.yaml))
 folds=$(yq -r '.N_FOLDS' ${PROJECTDIR}/config.yaml)
@@ -24,7 +21,7 @@ folds=$(yq -r '.N_FOLDS' ${PROJECTDIR}/config.yaml)
 for str1 in "${model_strings[@]}"; do
 	for str2 in "${set_strings[@]}"; do
 		for ((i = 1; i <= folds; i++)); do
-			./train.py "${TRAINDATA_DIR}/model_${str1}/set_${str2}" $i "${MODEL_DIR}" && echo "Done training $str1 model for $str2 set, fold $i."
+			./train.py ${str1} ${str2} $i && echo "Done training $str1 model for $str2 set, fold $i."
 		done
 	done
 done

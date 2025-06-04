@@ -5,12 +5,13 @@
 Filtra de un CSV datos innecesarios y guarda los resultados.
 
 Usage:
-	filter_csv.py <input_csv> [output_dir=./]
+	filter_csv.py <input_csv>
 """
 
 from sys import argv
-from os import path, makedirs
+from os import path, makedirs, environ
 import pandas as pd
+import yaml
 
 
 def main():
@@ -33,7 +34,13 @@ def main():
 
 	csv_path = argv[1]
 	basename = path.basename(csv_path)
-	output_dir = argv[2]
+
+	config_path = path.join(environ['PROJECT_ROOT'], 'config.yaml')
+	with open(config_path, 'r') as f:
+		config = yaml.safe_load(f)
+
+	DATA_DIR = config['DATA_DIR']
+	output_dir = path.join(DATA_DIR, "processed/filtered")
 	output_path = path.join(output_dir, f"{basename[:3]}_filtered.csv")
 	makedirs(output_dir, exist_ok=True)
 

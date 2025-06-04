@@ -109,15 +109,15 @@ def main():
 	early_stopping = EarlyStopping(
 		monitor='val_loss',
 		patience=100,  # Número de épocas sin mejora antes de parar
-		min_delta=0.001,
+		min_delta=0.0001,
 		restore_best_weights=True
 	)
 
 	reduce_lr = ReduceLROnPlateau(
 		monitor='val_loss',
-		factor=0.5,      # Reduce LR by half when stuck
-		patience=10,     # Wait 10 epochs before reducing
-		min_lr=1e-6      # Minimum allowed LR
+		factor=0.5,       # Reduce LR by half when stuck
+		patience=100,     # Wait 10 epochs before reducing
+		min_lr=1e-8       # Minimum allowed LR
 	)
 
 	# Train the model

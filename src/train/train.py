@@ -16,7 +16,7 @@ from os import makedirs, path, environ
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout, BatchNormalization
 from tensorflow.keras.activations import relu  # sigmoid, tanh
-from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
+from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping, ReduceLROnPlateau
 from tensorflow.keras.losses import mae, logcosh
 from tensorflow.keras.regularizers import l2
 from tensorflow.keras.optimizers import Adam
@@ -96,7 +96,7 @@ def main():
 		metrics=[mae]
 	)
 
-	# Set up model checkpoint to save the best model
+	# Set up model checkpoint and other callbacks
 	model_path = path.join(output_path, f'{model_index}_{set_index}_fold_{val_fold}.keras')
 	checkpoint = ModelCheckpoint(
 		model_path,
@@ -108,8 +108,16 @@ def main():
 
 	early_stopping = EarlyStopping(
 		monitor='val_loss',
-		patience=10,  # Número de épocas sin mejora antes de parar
+		patience=100,  # Número de épocas sin mejora antes de parar
+		min_delta=0.001,
 		restore_best_weights=True
+	)
+
+	reduce_lr = ReduceLROnPlateau(
+		monitor='val_loss',
+		factor=0.5,      # Reduce LR by half when stuck
+		patience=10,     # Wait 10 epochs before reducing
+		min_lr=1e-6      # Minimum allowed LR
 	)
 
 	# Train the model
@@ -118,7 +126,7 @@ def main():
 		validation_data=(X_val, y_val),
 		epochs=EPOCHS,
 		batch_size=BATCH_SIZE,
-		callbacks=[checkpoint, early_stopping],
+		callbacks=[early_stopping, reduce_lr, checkpoint],
 		verbose=1
 	)
 

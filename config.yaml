@@ -7,24 +7,24 @@ OUTPUT_DIR: "output"
 FEATURES:
   - "REF_ESP" # ORIG
   # - "C_P" # Esto aparentemente tiene el mismo valor que el label?
-  - "EDAD"
+  # - "EDAD"
   # - "SEXO"
-  - "AVSC1"
-  - "AVCC1" # Hay varios features como este que tienen valores similares en muchos casos
+  # - "AVSC1"
+  # - "AVCC1" # Hay varios features como este que tienen valores similares en muchos casos
   - "ESF1"
-  - "CIL1"
-  - "EJE1"
-  - "AVSC2"
-  - "AVCC2"
+  # - "CIL1"
+  # - "EJE1"
+  # - "AVSC2"
+  # - "AVCC2"
   - "ESF2+CIL2/2" # ORIG
   # - "ESF2"
   # - "CIL2"
-  - "EJE2"
-  - "MF1"
-  - "MD1"
+  # - "EJE2"
+  # - "MF1"
+  # - "MD1"
   - "K1" # ORIG
   # - "WTW"
-  - "CENTRO"
+  # - "CENTRO"
   # - "DP"
   - "GC"
   - "PCA" # ORIG
@@ -46,4 +46,4 @@ N_FOLDS: 2 # N_FOLDS >= 2
 EPOCHS: 1000
 BATCH_SIZE: 500
 LEARNING_RATE: 0.001
-RANDOM_STATE: 42
+RANDOM_STATE: 39

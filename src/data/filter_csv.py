@@ -39,7 +39,7 @@ def main():
 	with open(config_path, 'r') as f:
 		config = yaml.safe_load(f)
 
-	DATA_DIR = config['DATA_DIR']
+	DATA_DIR = path.join(environ['PROJECT_ROOT'], config['DATA_DIR'])
 	output_dir = path.join(DATA_DIR, "processed/filtered")
 	output_path = path.join(output_dir, f"{basename[:3]}_filtered.csv")
 	makedirs(output_dir, exist_ok=True)

@@ -28,7 +28,7 @@ def main():
 	N_FOLDS = config['N_FOLDS']
 	FEATURES = config['FEATURES']
 	RANDOM_STATE = config['RANDOM_STATE']
-	DATA_DIR = config['DATA_DIR']
+	DATA_DIR = path.join(environ['PROJECT_ROOT'], config['DATA_DIR'])
 
 	output_path = path.join(DATA_DIR, "train")
 	output_path_base = f"{output_path}/model_{model_index}/set_{set_index}"

@@ -58,9 +58,9 @@ def main():
 	BATCH_SIZE = config['BATCH_SIZE']
 	LEARNING_RATE = config['LEARNING_RATE']
 
-	TRAINDATA_DIR = path.join(config['DATA_DIR'], f"train/model_{model_index}/set_{set_index}")
+	TRAINDATA_DIR = path.join(environ['PROJECT_ROOT'], config['DATA_DIR'], f"train/model_{model_index}/set_{set_index}")
 
-	output_path = path.join(config['MODEL_DIR'], f"model_{model_index}/set_{set_index}")
+	output_path = path.join(environ['PROJECT_ROOT'], config['MODEL_DIR'], f"model_{model_index}/set_{set_index}")
 	makedirs(output_path, exist_ok=True)
 
 	# Cargar el set de training y de validación

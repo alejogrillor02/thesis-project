@@ -53,7 +53,7 @@ def main():
 	FEATURES = config['FEATURES']
 	RANDOM_STATE = config['RANDOM_STATE']
 	MODELS = config['MODELS']
-	DATA_DIR = config['DATA_DIR']
+	DATA_DIR = path.join(environ['PROJECT_ROOT'], config['DATA_DIR'])
 
 	output_dir = path.join(DATA_DIR, "processed")
 	makedirs(output_dir, exist_ok=True)
@@ -66,6 +66,8 @@ def main():
 		if feature == "ESF2+CIL2/2":
 			# Caso especial para feature compuesto
 			col_data = df["ESF2"] + (df["CIL2"] / 2)
+		elif feature == "DELTA_REF":
+			col_data = df["ESF2"] + (df["CIL2"] / 2) - df["REF_ESP"]
 		else:
 			col_data = df[feature]
 

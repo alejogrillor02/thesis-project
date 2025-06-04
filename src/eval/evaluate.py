@@ -101,9 +101,8 @@ def main():
 
 		# Make predictions
 		y_pred = model.predict(X_test).flatten()
-		all_predictions.append(y_pred)
-
 		y_pred = denormalizeminmax(y_pred, norm_stats)
+		all_predictions.append(y_pred)
 
 		# Calculate metrics
 		mae_score = mean_absolute_error(y_test, y_pred)
@@ -115,30 +114,6 @@ def main():
 		all_r2.append(r2)
 
 		print(f"Fold {fold_num} - MAE: {mae_score:.4f}, MSE: {mse_score:.4f}, R²: {r2:.4f}")
-
-		# Plot actual vs predicted
-		plt.figure(figsize=(8, 6))
-		plt.scatter(y_test, y_pred, alpha=0.5)
-		plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'k--', lw=2)
-
-		# Líneas de margen de error
-		error_margin = 0.5
-		plt.plot(
-			[y_test.min(), y_test.max()],
-			[y_test.min() - error_margin, y_test.max() - error_margin],
-			'r--', lw=1, alpha=0.7
-		)
-		plt.plot(
-			[y_test.min(), y_test.max()],
-			[y_test.min() + error_margin, y_test.max() + error_margin],
-			'r--', lw=1, alpha=0.7
-		)
-
-		plt.xlabel('Actual Values')
-		plt.ylabel('Predicted Values')
-		plt.title('Actual vs Predicted Values')
-		plt.savefig(path.join(output_path_base, f'{model_index}_{set_index}_fold_{fold_num}_predictions.pdf'))
-		plt.close()
 
 	# Compute mean and std of metrics across folds
 	mean_mae = np.mean(all_mae)
@@ -165,6 +140,29 @@ def main():
 	print(f"MAE: {ensemble_mae:.4f}")
 	print(f"MSE: {ensemble_mse:.4f}")
 	print(f"R2: {ensemble_r2:.4f}")
+
+	# Plot actual vs predicted
+	plt.figure(figsize=(8, 6))
+	plt.scatter(y_test, mean_predictions, alpha=0.5)
+	plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'k--', lw=2)
+
+	# Líneas de margen de error
+	error_margin = 0.5
+	plt.plot(
+		[y_test.min(), y_test.max()],
+		[y_test.min() - error_margin, y_test.max() - error_margin],
+		'r--', lw=1, alpha=0.7
+	)
+	plt.plot(
+		[y_test.min(), y_test.max()],
+		[y_test.min() + error_margin, y_test.max() + error_margin],
+		'r--', lw=1, alpha=0.7
+	)
+
+	plt.xlabel('Actual Values')
+	plt.ylabel('Predicted Values')
+	plt.title('Actual vs Predicted Values')
+	plt.savefig(path.join(output_path_base, f'{model_index}_{set_index}_predictions.pdf'))
 
 
 if __name__ == "__main__":

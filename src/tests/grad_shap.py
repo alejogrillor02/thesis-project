@@ -90,16 +90,13 @@ def main():
 	shap_values_array = np.array(shap_values_per_fold)
 
 	# Calcular la media de SHAP para cada feature (conservando el signo)
-	mean_shap = np.mean(shap_values_array, axis=(0, 1))
+	mean_shap = np.mean(shap_values_array, axis=(0, 1)).flatten()
 
 	# Crear DataFrame
 	importance_df = pd.DataFrame({
-		'Feature': FEATURES,
+		'Feature': FEATURES[:-1],
 		'SHAP_mean': mean_shap
 	})
-
-	# Ordenar por importancia absoluta para el gráfico
-	importance_df = importance_df.sort_values('SHAP_abs_mean', ascending=False)
 
 	# Gráfico de importancia bruta
 	plt.figure(figsize=(12, 8))
@@ -113,7 +110,7 @@ def main():
 	plt.axvline(0, color='black', linestyle='--', linewidth=0.5)
 	plt.gca().invert_yaxis()
 	plt.tight_layout()
-	plot_path_signed = f"{output_path_base}/feature_impact_shap_signed.pdf"
+	plot_path_signed = f"{output_path_base}/feature_impact_shap.pdf"
 	plt.savefig(plot_path_signed)
 	plt.close()
 

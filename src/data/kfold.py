@@ -31,6 +31,7 @@ def main():
 
 	N_FOLDS = config['N_FOLDS']
 	FEATURES = config['FEATURES']
+	RANDOM_STATE = config['RANDOM_STATE']
 
 	data = np.loadtxt(input_dataset)
 
@@ -40,10 +41,10 @@ def main():
 
 	# Configurar el tipo de KFold según el set
 	if set_index == "G":
-		kf = StratifiedKFold(n_splits=N_FOLDS, shuffle=True, random_state=None)
+		kf = StratifiedKFold(n_splits=N_FOLDS, shuffle=True, random_state=RANDOM_STATE)
 		split_generator = kf.split(X, y)
 	else:
-		kf = KFold(n_splits=N_FOLDS, shuffle=True, random_state=None)
+		kf = KFold(n_splits=N_FOLDS, shuffle=True, random_state=RANDOM_STATE)
 		split_generator = kf.split(X)
 
 	# Generar los folds de entrenamiento

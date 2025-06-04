@@ -19,6 +19,7 @@ MODEL_DIR=${PROJECTDIR}/$(yq -r '.MODEL_DIR' ${PROJECTDIR}/config.yaml)
 
 model_strings=($(yq -r '.MODELS[]' ${PROJECTDIR}/config.yaml))
 set_strings=($(yq -r '.SETS[]' ${PROJECTDIR}/config.yaml))
+folds=$(yq -r '.N_FOLDS' ${PROJECTDIR}/config.yaml)
 
 for str1 in "${model_strings[@]}"; do
 	for str2 in "${set_strings[@]}"; do

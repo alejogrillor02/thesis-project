@@ -14,10 +14,11 @@ import yaml
 from sys import argv
 from os import makedirs, path, environ
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Dropout
+from tensorflow.keras.layers import Dense, Dropout, BatchNormalization
 from tensorflow.keras.activations import relu  # sigmoid, tanh
-from tensorflow.keras.callbacks import ModelCheckpoint
-from tensorflow.keras.losses import mae  # logcosh
+from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
+from tensorflow.keras.losses import mae, logcosh
+from tensorflow.kears.regularizers import l2
 from tensorflow.keras.optimizers import Adam
 
 
@@ -37,12 +38,16 @@ def main():
 		"""Docstring."""
 
 		model = Sequential([
-			Dense(64, activation=relu, input_shape=(inputs, )),
+			Dense(128, activation=relu, input_shape=(inputs,), kernel_regularizer=l2(0.01)),
+			BatchNormalization(),
+			Dropout(0.5),
+			Dense(64, activation=relu, kernel_regularizer=l2(0.01)),
+			BatchNormalization(),
 			Dropout(0.3),
 			Dense(32, activation=relu),
 			Dense(outputs)
 		])
-
+		
 		return model
 
 	model_index = argv[1]
@@ -87,13 +92,12 @@ def main():
 	model = create_model(n_features, n_labels)
 	model.compile(
 		optimizer=Adam(learning_rate=LEARNING_RATE),
-		loss=mae,
+		loss=logcosh,
 		metrics=[mae]
 	)
 
 	# Set up model checkpoint to save the best model
-	model_path = path.join(
-		output_path, f'{model_index}_{set_index}_fold_{val_fold}.keras')
+	model_path = path.join(output_path, f'{model_index}_{set_index}_fold_{val_fold}.keras')
 	checkpoint = ModelCheckpoint(
 		model_path,
 		save_best_only=True,
@@ -102,13 +106,19 @@ def main():
 		verbose=1
 	)
 
+	early_stopping = EarlyStopping(
+		monitor='val_loss',
+		patience=10,  # Número de épocas sin mejora antes de parar
+		restore_best_weights=True
+	)
+
 	# Train the model
 	stat = model.fit(
 		X_train, y_train,
 		validation_data=(X_val, y_val),
 		epochs=EPOCHS,
 		batch_size=BATCH_SIZE,
-		callbacks=[checkpoint],
+		callbacks=[checkpoint, early_stopping],
 		verbose=1
 	)
 

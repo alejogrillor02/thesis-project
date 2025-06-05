@@ -38,13 +38,22 @@ def main():
 		"""Docstring."""
 
 		model = Sequential([
-			Dense(128, activation=relu, input_shape=(inputs,), kernel_regularizer=l2(0.01)),
+			Dense(16, activation=relu, input_shape=(inputs,), kernel_regularizer=l2(0.01)),
 			BatchNormalization(),
 			Dropout(0.5),
-			Dense(64, activation=relu, kernel_regularizer=l2(0.01)),
+			Dense(16, activation=relu, input_shape=(inputs,), kernel_regularizer=l2(0.01)),
 			BatchNormalization(),
 			Dropout(0.3),
-			Dense(32, activation=relu),
+			Dense(8, activation=relu, input_shape=(inputs,), kernel_regularizer=l2(0.01)),
+			BatchNormalization(),
+			Dropout(0.3),
+			Dense(8, activation=relu, input_shape=(inputs,), kernel_regularizer=l2(0.01)),
+			BatchNormalization(),
+			Dense(4, activation=relu, input_shape=(inputs,), kernel_regularizer=l2(0.01)),
+			BatchNormalization(),
+			Dense(4, activation=relu, input_shape=(inputs,), kernel_regularizer=l2(0.01)),
+			BatchNormalization(),
+			Dense(2, activation=relu),
 			Dense(outputs)
 		])
 

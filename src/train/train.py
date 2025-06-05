@@ -124,9 +124,9 @@ def main():
 
 	reduce_lr = ReduceLROnPlateau(
 		monitor='val_loss',
-		factor=0.5,       # Reduce LR by half when stuck
-		patience=100,     # Wait 10 epochs before reducing
-		min_lr=1e-8       # Minimum allowed LR
+		factor=0.5,
+		patience=10,
+		min_lr=1e-8
 	)
 
 	# Train the model
@@ -136,6 +136,7 @@ def main():
 		epochs=EPOCHS,
 		batch_size=BATCH_SIZE,
 		callbacks=[early_stopping, reduce_lr, checkpoint],
+		# callbacks=[checkpoint],
 		verbose=1
 	)
 

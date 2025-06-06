@@ -15,17 +15,11 @@ if [[ ! -f "${PROJECTDIR}/config.yaml" ]]; then
 fi
 export PROJECT_ROOT="$PROJECTDIR"
 
-OUTPUT_DIR=${PROJECTDIR}/$(yq -r '.OUTPUT_DIR' ${PROJECTDIR}/config.yaml)
-MODEL_DIR=${PROJECTDIR}/$(yq -r '.MODEL_DIR' ${PROJECTDIR}/config.yaml)
-DATA_DIR=${PROJECTDIR}/$(yq -r '.DATA_DIR' ${PROJECTDIR}/config.yaml)
-TRAINDATA_DIR="${DATA_DIR}/train"
-NORM_DATA_DIR="${DATA_DIR}/processed"
-
 model_strings=($(yq -r '.MODELS[]' ${PROJECTDIR}/config.yaml))
 set_strings=($(yq -r '.SETS[]' ${PROJECTDIR}/config.yaml))
 
 for str1 in "${model_strings[@]}"; do
 	for str2 in "${set_strings[@]}"; do
-		./evaluate.py "${MODEL_DIR}/model_${str1}/set_${str2}" "${TRAINDATA_DIR}/model_${str1}/set_${str2}/${str1}_${str2}_test.txt" "${NORM_DATA_DIR}" "${OUTPUT_DIR}" && echo "Done evaluating $str1 model for $str2 set."
+		./evaluate.py "${str1}" "${str2}" "${str2}" && echo "Done evaluating $str1 model for $str2 set."
 	done
 done

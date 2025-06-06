@@ -3,14 +3,13 @@
 """
 Script de evaluación para modelos de aprendizaje automático con validación cruzada.
 
-Uso:
-	python script.py <models_path> <test_data_path> <denorm_path> <output_path>
+Usage:
+	python script.py <model_index> <set_index> <test_data_set_index>
 
-Argumentos:
-	models_path: Ruta al directorio que contiene los modelos entrenados
-	test_data_path: Ruta al archivo con datos de prueba
-	denorm_path: Ruta al directorio con estadísticas para desnormalización
-	output_path: Ruta donde guardar resultados y gráficos
+Args:
+	model_index (int): Índice del modelo a evaluar
+	set_index (int): Índice del conjunto de entrenamiento
+	test_data_set_index (int): Índice del conjunto de prueba (opcional, por defecto = set_index)
 """
 
 import numpy as np
@@ -56,33 +55,33 @@ def main():
 		return norm_data * (norm_stats['max'] - norm_stats['min']) + norm_stats['min']
 
 	# Parse command line arguments
-	models_path = argv[1]
-	test_data_path = argv[2]
-	denorm_path = argv[3]
-	output_path = argv[4]
+	model_index = argv[1]
+	set_index = argv[2]
+	test_data_set_index = argv[3] if len(argv) > 3 else argv[2]
 
 	config_path = path.join(environ['PROJECT_ROOT'], 'config.yaml')
 	with open(config_path, 'r') as f:
 		config = yaml.safe_load(f)
 
 	N_FOLDS = config['N_FOLDS']
+	MODEL_DIR = path.join(environ['PROJECT_ROOT'], config['MODEL_DIR'], f"model_{model_index}/set_{set_index}")
 
-	# Parse model and set index
-	parts = models_path.strip("/").split("/")
-	relevant_parts = parts[-2:]
-	model_dir = relevant_parts[-2]  # 'model_XXX'
-	set_dir = relevant_parts[-1]    # 'set_Y'
-	model_index = model_dir.split("_")[1]
-	set_index = set_dir.split("_")[1]
-
-	output_path_base = f"{output_path}/model_{model_index}/set_{set_index}/predictions"
+	if set_index == test_data_set_index:
+		output_path_base = path.join(environ['PROJECT_ROOT'], config['OUTPUT_DIR'], f"model_{model_index}/set_{set_index}/predictions")
+		output_suffix = ""
+	else:
+		output_path_base = path.join(environ['PROJECT_ROOT'], config['OUTPUT_DIR'], f"model_{model_index}/set_{set_index}/cross_eval/set_{test_data_set_index}")
+		output_suffix = f"_with_{test_data_set_index}"
 	makedirs(output_path_base, exist_ok=True)
 
 	# Load test data
+	test_data_path = path.join(environ['PROJECT_ROOT'], config['DATA_DIR'], f"train/model_{model_index}/set_{set_index}/{model_index}_{set_index}_test.txt")
 	X_test, y_test = load_test_data(test_data_path)
 	X_test = np.delete(X_test, 0, axis=1)
 
-	all_stats = pd.read_csv(f'{denorm_path}/{model_index}_norm_stats.csv')
+	# Load norm metrics
+	norm_stats_path = path.join(environ['PROJECT_ROOT'], config['DATA_DIR'], f'processed/{model_index}_norm_stats.csv')
+	all_stats = pd.read_csv(norm_stats_path)
 	norm_stats = all_stats.iloc[-1]
 
 	y_test = denormalizeminmax(y_test, norm_stats)
@@ -94,9 +93,7 @@ def main():
 	all_predictions = []
 
 	for fold_num in range(1, N_FOLDS + 1):
-		model_path = path.join(
-			models_path, f'{model_index}_{set_index}_fold_{fold_num}.keras')
-
+		model_path = path.join(MODEL_DIR, f'{model_index}_{set_index}_fold_{fold_num}.keras')
 		model = load_model(model_path)
 
 		# Make predictions
@@ -136,7 +133,18 @@ def main():
 		plt.xlabel('Actual Values')
 		plt.ylabel('Predicted Values')
 		plt.title('Actual vs Predicted Values')
-		plt.savefig(path.join(output_path_base, f'{model_index}_{set_index}_fold_{fold_num}_predictions.pdf'))
+		plt.savefig(path.join(output_path_base, f'{model_index}_{set_index}{output_suffix}_fold_{fold_num}_predictions.pdf'))
+
+	# Guardar métricas por fold en un CSV
+	metrics_per_fold = pd.DataFrame({
+		'Fold': range(1, N_FOLDS + 1),
+		'MAE': all_mae,
+		'MSE': all_mse,
+		'R2': all_r2
+	})
+
+	metrics_csv_path = path.join(output_path_base, f'{model_index}_{set_index}{output_suffix}_fold_metrics.csv')
+	metrics_per_fold.to_csv(metrics_csv_path, index=False)
 
 	# Compute mean and std of metrics across folds
 	mean_mae = np.mean(all_mae)
@@ -148,16 +156,16 @@ def main():
 	mean_r2 = np.mean(all_r2)
 	std_r2 = np.std(all_r2)
 
+	print("\nAggregated Performance Across Folds:")
+	print(f"Mean MAE: {mean_mae:.4f} ± {std_mae:.4f}")
+	print(f"Mean MSE: {mean_mse:.4f} ± {std_mse:.4f}")
+	print(f"Mean R²: {mean_r2:.4f} ± {std_r2:.4f}")
+
 	# Compute metrics on mean predictions
 	mean_predictions = np.mean(np.array(all_predictions), axis=0)
 	ensemble_mae = mean_absolute_error(y_test, mean_predictions)
 	ensemble_mse = mean_squared_error(y_test, mean_predictions)
 	ensemble_r2 = r2_score(y_test, mean_predictions)
-
-	print("\nAggregated Performance Across Folds:")
-	print(f"Mean MAE: {mean_mae:.4f} ± {std_mae:.4f}")
-	print(f"Mean MSE: {mean_mse:.4f} ± {std_mse:.4f}")
-	print(f"Mean R²: {mean_r2:.4f} ± {std_r2:.4f}")
 
 	print("\nEnsemble Performance (Mean Prediction):")
 	print(f"MAE: {ensemble_mae:.4f}")
@@ -166,7 +174,7 @@ def main():
 
 	# Plot actual vs predicted
 	plt.figure(figsize=(8, 6))
-	plt.scatter(y_test, mean_predictions, alpha=0.)
+	plt.scatter(y_test, mean_predictions, alpha=0.5)
 	plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'k--', lw=2)
 
 	# Líneas de margen de error
@@ -185,7 +193,7 @@ def main():
 	plt.xlabel('Actual Values')
 	plt.ylabel('Mean Predicted Values')
 	plt.title('Actual vs Mean Predicted Values')
-	plt.savefig(path.join(output_path_base, f'{model_index}_{set_index}_mean_predictions.pdf'))
+	plt.savefig(path.join(output_path_base, f'{model_index}_{set_index}{output_suffix}_mean_predictions.pdf'))
 	plt.close()
 
 

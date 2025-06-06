@@ -63,7 +63,7 @@ def main():
 
 	# Guardar los stats de normalización
 	for feature in FEATURES:
-		if feature == "ESF2+CIL2/2":
+		if feature == "REF_POST":
 			# Caso especial para feature compuesto
 			col_data = df["ESF2"] + (df["CIL2"] / 2)
 		elif feature == "DELTA_REF":
@@ -127,7 +127,7 @@ def main():
 		data_test[:, 0] = [1 if entry == "M" else 0 for entry in df_i_test["SEXO"]]
 
 		for i, feature in enumerate(FEATURES, start=1):
-			if feature == "ESF2+CIL2/2":
+			if feature == "REF_POST":
 				# Caso especial para feature compuesto
 				col_data = df_i["ESF2"] + (df_i["CIL2"] / 2)
 				col_test_data = df_i_test["ESF2"] + (df_i_test["CIL2"] / 2)

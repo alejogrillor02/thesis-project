@@ -16,7 +16,7 @@ from os import makedirs, path, environ
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout, BatchNormalization
 from tensorflow.keras.activations import relu  # sigmoid, tanh
-from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping, ReduceLROnPlateau
+from tensorflow.keras.callbacks import ModelCheckpoint  # , EarlyStopping, ReduceLROnPlateau
 from tensorflow.keras.losses import mae, logcosh
 from tensorflow.keras.regularizers import l2
 from tensorflow.keras.optimizers import Adam
@@ -38,22 +38,12 @@ def main():
 		"""Docstring."""
 
 		model = Sequential([
-			Dense(16, activation=relu, input_shape=(inputs,), kernel_regularizer=l2(0.01)),
+			Dense(128, activation=relu, input_shape=(inputs,), kernel_regularizer=l2(0.01)),
 			BatchNormalization(),
 			Dropout(0.5),
-			Dense(16, activation=relu, input_shape=(inputs,), kernel_regularizer=l2(0.01)),
+			Dense(64, activation=relu, input_shape=(inputs,), kernel_regularizer=l2(0.01)),
 			BatchNormalization(),
 			Dropout(0.3),
-			Dense(8, activation=relu, input_shape=(inputs,), kernel_regularizer=l2(0.01)),
-			BatchNormalization(),
-			Dropout(0.3),
-			Dense(8, activation=relu, input_shape=(inputs,), kernel_regularizer=l2(0.01)),
-			BatchNormalization(),
-			Dense(4, activation=relu, input_shape=(inputs,), kernel_regularizer=l2(0.01)),
-			BatchNormalization(),
-			Dense(4, activation=relu, input_shape=(inputs,), kernel_regularizer=l2(0.01)),
-			BatchNormalization(),
-			Dense(2, activation=relu),
 			Dense(outputs)
 		])
 
@@ -115,19 +105,19 @@ def main():
 		verbose=1
 	)
 
-	early_stopping = EarlyStopping(
-		monitor='val_loss',
-		patience=100,  # Número de épocas sin mejora antes de parar
-		min_delta=0.0001,
-		restore_best_weights=True
-	)
+	# early_stopping = EarlyStopping(
+	# 	monitor='val_loss',
+	# 	patience=100,  # Número de épocas sin mejora antes de parar
+	# 	min_delta=0.0001,
+	# 	restore_best_weights=True
+	# )
 
-	reduce_lr = ReduceLROnPlateau(
-		monitor='val_loss',
-		factor=0.5,
-		patience=10,
-		min_lr=1e-8
-	)
+	# reduce_lr = ReduceLROnPlateau(
+	# 	monitor='val_loss',
+	# 	factor=0.5,
+	# 	patience=10,
+	# 	min_lr=1e-8
+	# )
 
 	# Train the model
 	stat = model.fit(
@@ -135,8 +125,8 @@ def main():
 		validation_data=(X_val, y_val),
 		epochs=EPOCHS,
 		batch_size=BATCH_SIZE,
-		callbacks=[early_stopping, reduce_lr, checkpoint],
-		# callbacks=[checkpoint],
+		# callbacks=[early_stopping, reduce_lr, checkpoint],
+		callbacks=[checkpoint],
 		verbose=1
 	)
 

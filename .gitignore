@@ -1,0 +1,44 @@
+# Virtual environments
+venv/
+.venv/
+env/
+.env/
+
+# Misc.
+.vscode/
+*.env
+*.secret
+.old/
+config.yml
+secrets.json
+docs/
+
+# Outputs
+models/
+output/
+data/processed/
+data/train/
+data/raw/xlsx/
+*.log
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+.directory
+
+# C extensions
+*.so
+
+# Jupyter Notebook
+.ipynb_checkpoints
+profile_default/
+ipython_config.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/

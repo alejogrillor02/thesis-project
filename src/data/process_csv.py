@@ -97,6 +97,9 @@ def main():
 	df_f_train, df_f_test = train_test_split(df_f, test_size=0.2, random_state=RANDOM_STATE)
 	df_m_train, df_m_test = train_test_split(df_m, test_size=0.2, random_state=RANDOM_STATE)
 
+	# Hace el test split para el modelo de embedding
+	df_e_train, df_e_test = train_test_split(df, test_size=0.2, random_state=RANDOM_STATE)
+
 	# Tamaño uniforme
 	u_train_size = min(df_f_train.shape[0], df_m_train.shape[0])
 	u_test_size = min(df_f_test.shape[0], df_m_test.shape[0])
@@ -115,7 +118,8 @@ def main():
 		set_list.append(
 			(df_f_train, df_f_test, "F") if set_index == "F" else
 			(df_m_train, df_m_test, "M") if set_index == "M" else
-			(df_g_train, df_g_test, "G")
+			(df_g_train, df_g_test, "G") if set_index == "G" else
+			(df_e_train, df_e_test, "E")
 		)
 
 	for df_i, df_i_test, set_i in set_list:

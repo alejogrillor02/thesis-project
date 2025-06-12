@@ -96,7 +96,7 @@ def main():
 	all_mae = []
 	all_mse = []
 	all_r2 = []
-	all_predictions = []
+	all_errors = []
 
 	for fold_num in range(1, N_FOLDS + 1):
 		model_path = path.join(MODEL_DIR, f'{model_index}_{set_index}_fold_{fold_num}.keras')
@@ -105,7 +105,11 @@ def main():
 		# Make predictions
 		y_pred = model.predict(X_test).flatten()
 		y_pred = denormalizeminmax(y_pred, norm_stats)
-		all_predictions.append(y_pred)
+		errors = y_pred - y_test
+		indices = np.arange(len(errors))
+
+		bad = len(errors[abs(errors) >= 0.5])
+		very_bad = len(errors[abs(errors) >= 1.0])
 
 		# Calculate metrics
 		mae_score = mean_absolute_error(y_test, y_pred)
@@ -115,42 +119,50 @@ def main():
 		all_mae.append(mae_score)
 		all_mse.append(mse_score)
 		all_r2.append(r2)
+		all_errors.append(errors)
 
-		print(f"Fold {fold_num} - MAE: {mae_score:.4f}, MSE: {mse_score:.4f}, R²: {r2:.4f}")
+		print(f"Fold {fold_num} - MAE: {mae_score:.4f}, MSE: {mse_score:.4f}, R²: {r2:.4f}, Bad cases: {bad}, Very bad cases: {very_bad}")
 
-		# Plot actual vs predicted
+		# Plot errors
 		plt.figure(figsize=(8, 6))
-		plt.scatter(y_test, y_pred, alpha=0.5)
-		plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'k--', lw=2)
+		plt.scatter(indices, errors, alpha=0.5)
+		plt.plot([0, indices.max()], [0, 0], 'k--', lw=2)
 
 		# Líneas de margen de error
 		error_margin = 0.5
-		plt.plot(
-			[y_test.min(), y_test.max()],
-			[y_test.min() - error_margin, y_test.max() - error_margin],
-			'r--', lw=1, alpha=0.7
-		)
-		plt.plot(
-			[y_test.min(), y_test.max()],
-			[y_test.min() + error_margin, y_test.max() + error_margin],
-			'r--', lw=1, alpha=0.7
-		)
+		plt.plot([0, indices.max()], np.zeros(2) + error_margin, 'r--', lw=1, alpha=0.7)
+		plt.plot([0, indices.max()], np.zeros(2) - error_margin, 'r--', lw=1, alpha=0.7)
 
-		plt.xlabel('Actual Values')
-		plt.ylabel('Predicted Values')
-		plt.title('Actual vs Predicted Values')
-		plt.savefig(path.join(output_path_base, f'{model_index}_{set_index}{output_suffix}_fold_{fold_num}_predictions.pdf'))
+		plt.ylabel('Errores')
+		plt.title('Ploteo de Errores')
+		plt.savefig(path.join(output_path_base, f'{model_index}_{set_index}{output_suffix}_fold_{fold_num}_errors.pdf'))
+
+		# Plot actual vs predicted
+		# plt.figure(figsize=(8, 6))
+		# plt.scatter(y_test, y_pred, alpha=0.5)
+		# plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'k--', lw=2)
+		# # Líneas de margen de error
+		# error_margin = 0.5
+		# plt.plot(
+		# 	[y_test.min(), y_test.max()],
+		# 	[y_test.min() - error_margin, y_test.max() - error_margin],
+		# 	'r--', lw=1, alpha=0.7
+		# )
+		# plt.plot(
+		# 	[y_test.min(), y_test.max()],
+		# 	[y_test.min() + error_margin, y_test.max() + error_margin],
+		# 	'r--', lw=1, alpha=0.7
+		# )
+		# plt.xlabel('Actual Values')
+		# plt.ylabel('Predicted Values')
+		# plt.title('Actual vs Predicted Values')
+		# plt.savefig(path.join(output_path_base, f'{model_index}_{set_index}{output_suffix}_fold_{fold_num}_predictions.pdf'))
 
 	# Guardar métricas por fold en un CSV
-	metrics_per_fold = pd.DataFrame({
-		'Fold': range(1, N_FOLDS + 1),
-		'MAE': all_mae,
-		'MSE': all_mse,
-		'R2': all_r2
-	})
+	errors_per_fold = pd.DataFrame(all_errors).transpose()
 
-	metrics_csv_path = path.join(output_path_base, f'{model_index}_{set_index}{output_suffix}_fold_metrics.csv')
-	metrics_per_fold.to_csv(metrics_csv_path, index=False)
+	errors_csv_path = path.join(output_path_base, f'{model_index}_{set_index}{output_suffix}_fold_errors.csv')
+	errors_per_fold.to_csv(errors_csv_path, index=False)
 
 	# Compute mean and std of metrics across folds
 	mean_mae = np.mean(all_mae)
@@ -166,41 +178,6 @@ def main():
 	print(f"Mean MAE: {mean_mae:.4f} ± {std_mae:.4f}")
 	print(f"Mean MSE: {mean_mse:.4f} ± {std_mse:.4f}")
 	print(f"Mean R²: {mean_r2:.4f} ± {std_r2:.4f}")
-
-	# Compute metrics on mean predictions
-	mean_predictions = np.mean(np.array(all_predictions), axis=0)
-	ensemble_mae = mean_absolute_error(y_test, mean_predictions)
-	ensemble_mse = mean_squared_error(y_test, mean_predictions)
-	ensemble_r2 = r2_score(y_test, mean_predictions)
-
-	print("\nEnsemble Performance (Mean Prediction):")
-	print(f"MAE: {ensemble_mae:.4f}")
-	print(f"MSE: {ensemble_mse:.4f}")
-	print(f"R2: {ensemble_r2:.4f}")
-
-	# Plot actual vs predicted
-	plt.figure(figsize=(8, 6))
-	plt.scatter(y_test, mean_predictions, alpha=0.5)
-	plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'k--', lw=2)
-
-	# Líneas de margen de error
-	error_margin = 0.5
-	plt.plot(
-		[y_test.min(), y_test.max()],
-		[y_test.min() - error_margin, y_test.max() - error_margin],
-		'r--', lw=1, alpha=0.3
-	)
-	plt.plot(
-		[y_test.min(), y_test.max()],
-		[y_test.min() + error_margin, y_test.max() + error_margin],
-		'r--', lw=1, alpha=0.3
-	)
-
-	plt.xlabel('Actual Values')
-	plt.ylabel('Mean Predicted Values')
-	plt.title('Actual vs Mean Predicted Values')
-	plt.savefig(path.join(output_path_base, f'{model_index}_{set_index}{output_suffix}_mean_predictions.pdf'))
-	plt.close()
 
 
 if __name__ == "__main__":

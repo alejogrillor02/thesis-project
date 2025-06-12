@@ -92,13 +92,14 @@ def main():
 
 	df_f = df_f.sample(n=u_size, random_state=RANDOM_STATE)
 	df_m = df_m.sample(n=u_size, random_state=RANDOM_STATE)
+	df_e = df.sample(n=u_size, random_state=RANDOM_STATE)  # Nota: Si dejas el set entero entrena muy bien tho
 
 	# Hace un sample aleatorio de u_size filas
 	df_f_train, df_f_test = train_test_split(df_f, test_size=0.2, random_state=RANDOM_STATE)
 	df_m_train, df_m_test = train_test_split(df_m, test_size=0.2, random_state=RANDOM_STATE)
 
 	# Hace el test split para el modelo de embedding
-	df_e_train, df_e_test = train_test_split(df, test_size=0.2, random_state=RANDOM_STATE)
+	df_e_train, df_e_test = train_test_split(df_e, test_size=0.2, random_state=RANDOM_STATE)
 
 	# Tamaño uniforme
 	u_train_size = min(df_f_train.shape[0], df_m_train.shape[0])

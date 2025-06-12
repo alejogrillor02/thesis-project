@@ -63,11 +63,11 @@ def main():
 		
 		# Process numerical features
 		x = Dense(128, activation=relu, kernel_regularizer=l2(0.01))(numerical_input)
-		x = BatchNormalization(),
-		x = Dropout(0.5),
-		x = Dense(64, activation=relu, kernel_regularizer=l2(0.01)),
-		x = BatchNormalization(),
-		x = Dropout(0.3),
+		x = BatchNormalization()(x)
+		x = Dropout(0.5)(x)
+		x = Dense(64, activation=relu, kernel_regularizer=l2(0.01))(x)
+		x = BatchNormalization()(x)
+		x = Dropout(0.3)(x)
 		
 		# Concatenate
 		combined = Concatenate()([sex_embedded, x])
@@ -113,15 +113,6 @@ def main():
 
 	X_val = np.delete(X_val, 0, axis=1) if set_index != "E" else X_val
 
-	if set_index == "E":
-		sex_train = X_train[:, 0].astype(int)
-		X_train_num = X_train[:, 1:]
-		X_train = {'sex_input': sex_train, 'numerical_input': X_train_num}
-
-		sex_val = X_val[:, 0].astype(int)
-		X_val_num = X_val[:, 1:]
-		X_val = {'sex_input': sex_val, 'numerical_input': X_val_num}
-
 	# Create and compile model
 	n_features = X_train.shape[1]
 	n_labels = 1
@@ -131,6 +122,15 @@ def main():
 		loss=logcosh,
 		metrics=[mae]
 	)
+
+	if set_index == "E":
+		sex_train = X_train[:, 0].astype(int)
+		X_train_num = X_train[:, 1:]
+		X_train = {'sex_input': sex_train, 'numerical_input': X_train_num}
+
+		sex_val = X_val[:, 0].astype(int)
+		X_val_num = X_val[:, 1:]
+		X_val = {'sex_input': sex_val, 'numerical_input': X_val_num}
 
 	# Set up model checkpoint and other callbacks
 	model_path = path.join(output_path, f'{model_index}_{set_index}_fold_{val_fold}.keras')

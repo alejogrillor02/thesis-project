@@ -17,7 +17,7 @@ FEATURES:
   # - "AVSC2"
   # - "AVCC2"
   - "REF_POST" # ESF2 + CIL2/2 # Recomendacion del Especialista
-  # - "DELTA_REF" # ESF2 + CIL2/2 - REF_ESP
+  # - "DELTA_REF" # REF_POST - REF_ESP
   # - "ESF2"
   # - "CIL2"
   # - "EJE2"
@@ -49,3 +49,7 @@ EPOCHS: 1024
 BATCH_SIZE: 64
 LEARNING_RATE: 0.0001
 RANDOM_STATE: 39
+
+# Tests
+NORM_ALPHA: 0.05
+ALPHA: 0.05

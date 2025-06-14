@@ -29,9 +29,8 @@ def main():
 		return X, y
 
 	# Parse command line arguments
-	model_path = argv[1]
-	training_set_path = argv[2]
-	output_path = argv[3]
+	model_index = argv[1]
+	set_index = argv[2]
 
 	config_path = path.join(environ['PROJECT_ROOT'], 'config.yaml')
 	with open(config_path, 'r') as f:
@@ -39,35 +38,38 @@ def main():
 
 	N_FOLDS = config['N_FOLDS']
 	FEATURES = config['FEATURES']
+	MODEL_DIR = path.join(environ['PROJECT_ROOT'], config['MODEL_DIR'], f"model_{model_index}/set_{set_index}")
+	TRAIN_DATA_DIR = path.join(environ['PROJECT_ROOT'], config['DATA_DIR'], f"train/model_{model_index}/set_{set_index}")
 
-	parts = model_path.strip("/").split("/")
-	relevant_parts = parts[-2:]
-	model_dir = relevant_parts[-2]  # 'model_XXX'
-	set_dir = relevant_parts[-1]    # 'set_Y'
-	model_index = model_dir.split("_")[1]
-	set_index = set_dir.split("_")[1]
-
-	output_path_base = f"{output_path}/model_{model_index}/set_{set_index}"
+	output_path_base = path.join(environ['PROJECT_ROOT'], config['OUTPUT_DIR'], f"model_{model_index}/set_{set_index}")
 	makedirs(output_path_base, exist_ok=True)
 
 	# Load models
-	model_paths = [f"{model_path}/{model_index}_{set_index}_fold_{i}.keras" for i in range(1, N_FOLDS + 1)]
+	model_paths = [path.join(MODEL_DIR, f'{model_index}_{set_index}_fold_{i}.keras') for i in range(1, N_FOLDS + 1)]
 	models = [load_model(path) for path in model_paths]
 
 	# Load training data
 	X_train_parts = []
 	for fold_num in range(1, N_FOLDS + 1):
-		X, _y = load_fold_data(training_set_path, fold_num)
+		X, _y = load_fold_data(TRAIN_DATA_DIR, fold_num)
 		X_train_parts.append(X)
-
-	X_train = np.delete(np.concatenate(X_train_parts, axis=0), 0, axis=1)
+	X_train = np.delete(np.concatenate(X_train_parts, axis=0), 0, axis=1) if set_index != "E" else np.concatenate(X_train_parts, axis=0)
 
 	# Get a random sample for background
-	background = X_train[np.random.choice(X_train.shape[0], 100, replace=False)]
+	background = X_train[np.random.choice(X_train.shape[0], 400, replace=False)]
 
-	data = np.loadtxt(f'{training_set_path}/{model_index}_{set_index}_test.txt')
+	data = np.loadtxt(path.join(TRAIN_DATA_DIR, f'{model_index}_{set_index}_test.txt'))
 	X_test = data[:, :-1]
 	X_test = np.delete(X_test, 0, axis=1)
+
+	if set_index == "E":
+		sex_test = X_test[:, 0].astype(int)
+		X_test_num = X_test[:, 1:]
+		X_test = {'sex_input': sex_test, 'numerical_input': X_test_num}
+
+		sex_train = X_train[:, 0].astype(int)
+		X_train_num = X_train[:, 1:]
+		X_train = {'sex_input': sex_train, 'numerical_input': X_train_num}
 
 	# Compute SHAP values for each fold
 	shap_values_per_fold = []

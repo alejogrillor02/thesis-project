@@ -39,10 +39,8 @@ MODELS:
   # - "944"
 SETS:
   - "G"
-  - "M"
-  - "F"
   - "E"
-N_FOLDS: 10 # N_FOLDS >= 2
+N_FOLDS: 2 # N_FOLDS >= 2
 
 # Training
 EPOCHS: 1024

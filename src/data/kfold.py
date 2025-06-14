@@ -12,7 +12,7 @@ import numpy as np
 import yaml
 from sys import argv
 from os import path, makedirs, environ
-from sklearn.model_selection import StratifiedKFold, KFold
+from sklearn.model_selection import StratifiedKFold
 
 
 def main():
@@ -31,22 +31,17 @@ def main():
 	DATA_DIR = path.join(environ['PROJECT_ROOT'], config['DATA_DIR'])
 
 	output_path = path.join(DATA_DIR, "train")
-	output_path_base = f"{output_path}/model_{model_index}/set_{set_index}"
+	output_path_base = f"{output_path}/model_{model_index}/"
 	makedirs(output_path_base, exist_ok=True)
 	
 	data = np.loadtxt(input_dataset)
 
-	# Separar características y etiquetas (Solo es util para G?)
+	# Separar el feature a balancear
 	X = data[:, 1:]
 	y = data[:, 0].astype(int)
 
-	# Configurar el tipo de KFold según el set
-	if set_index == "G":
-		kf = StratifiedKFold(n_splits=N_FOLDS, shuffle=True, random_state=RANDOM_STATE)
-		split_generator = kf.split(X, y)
-	else:
-		kf = KFold(n_splits=N_FOLDS, shuffle=True, random_state=RANDOM_STATE)
-		split_generator = kf.split(X)
+	kf = StratifiedKFold(n_splits=N_FOLDS, shuffle=True, random_state=RANDOM_STATE)
+	split_generator = kf.split(X, y)
 
 	# Generar los folds de entrenamiento
 	for fold_idx, (train_idx, test_idx) in enumerate(split_generator, 1):

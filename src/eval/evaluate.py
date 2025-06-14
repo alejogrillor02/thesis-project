@@ -75,7 +75,7 @@ def main():
 	makedirs(output_path_base, exist_ok=True)
 
 	# Load test data
-	test_data_path = path.join(environ['PROJECT_ROOT'], config['DATA_DIR'], f"train/model_{model_index}/set_{set_index}/{model_index}_{set_index}_test.txt")
+	test_data_path = path.join(environ['PROJECT_ROOT'], config['DATA_DIR'], f"train/model_{model_index}/set_{test_data_set_index}/{model_index}_{test_data_set_index}_test.txt")
 	X_test, y_test = load_test_data(test_data_path)
 	X_test = np.delete(X_test, 0, axis=1) if set_index != "E" else X_test
 
@@ -92,11 +92,27 @@ def main():
 
 	y_test = denormalizeminmax(y_test, norm_stats)
 
+	# Sort them through actual values
+	sorted_indices = np.argsort(y_test)
+
 	# store metrics for each fold
 	all_mae = []
 	all_mse = []
 	all_r2 = []
 	all_errors = []
+
+	# For plotting later
+	bin_size = 2
+	bins = np.arange(y_test.min(), y_test.max() + bin_size, bin_size)
+	indices = np.arange(len(y_test))
+	bin_indices = []
+	for bin_val in bins:
+		# Find the first y_test >= bin_val (since y_test is sorted)
+		idx = np.searchsorted(y_test, bin_val, side='left')
+		if idx < len(y_test):  # Ensure we don't go out of bounds
+			bin_indices.append(idx)
+		else:
+			bin_indices.append(len(y_test) - 1)  # Fallback to last index
 
 	for fold_num in range(1, N_FOLDS + 1):
 		model_path = path.join(MODEL_DIR, f'{model_index}_{set_index}_fold_{fold_num}.keras')
@@ -105,8 +121,9 @@ def main():
 		# Make predictions
 		y_pred = model.predict(X_test).flatten()
 		y_pred = denormalizeminmax(y_pred, norm_stats)
+
 		errors = y_pred - y_test
-		indices = np.arange(len(errors))
+		errors_sorted = errors[sorted_indices]  # Apply the same sorting.
 
 		bad = len(errors[abs(errors) >= 0.5])
 		very_bad = len(errors[abs(errors) >= 1.0])
@@ -125,17 +142,43 @@ def main():
 
 		# Plot errors
 		plt.figure(figsize=(8, 6))
-		plt.scatter(indices, errors, alpha=0.5)
-		plt.plot([0, indices.max()], [0, 0], 'k--', lw=2)
+		plt.scatter(indices, errors_sorted, alpha=0.5)
+		plt.axhline(0, color='k', linestyle='--', lw=2, alpha=0.3)
 
 		# Líneas de margen de error
 		error_margin = 0.5
-		plt.plot([0, indices.max()], np.zeros(2) + error_margin, 'r--', lw=1, alpha=0.7)
-		plt.plot([0, indices.max()], np.zeros(2) - error_margin, 'r--', lw=1, alpha=0.7)
+		plt.axhline(error_margin, color='r', linestyle='--', lw=1, alpha=0.7)
+		plt.axhline(-error_margin, color='r', linestyle='--', lw=1, alpha=0.7)
 
-		plt.ylabel('Errores')
-		plt.title('Ploteo de Errores')
+		# Replace x-axis indices with bins
+		x_ticks = bin_indices
+		x_labels = [f"{bin_i}" for bin_i in bins]  # Or use bin values directly
+		plt.xticks(x_ticks, x_labels, rotation=45)
+
+		# Offset every other label
+		for i, label in enumerate(plt.gca().xaxis.get_ticklabels()):
+			if i == 0:
+				prev_pos_down = True
+			elif bin_indices[i] - bin_indices[i - 1] <= 50:
+				pos = label.get_position()[1]
+				new_pos = pos + 1 * 0.08 if prev_pos_down else pos
+				prev_pos_down = not prev_pos_down
+				label.set_y(new_pos)
+			else:
+				prev_pos_down = True
+		
+		plt.gca().tick_params(
+			axis='x',
+			which='both',
+			direction='inout'
+		)
+
+		plt.xlabel('Rangos de Valores reales')
+		plt.ylabel('Errores de Predicción')
+		# plt.title('Ploteo de Errores')
+		plt.tight_layout()  # Prevent label cutoff
 		plt.savefig(path.join(output_path_base, f'{model_index}_{set_index}{output_suffix}_fold_{fold_num}_errors.pdf'))
+		plt.close()
 
 		# Plot actual vs predicted
 		# plt.figure(figsize=(8, 6))
@@ -158,11 +201,11 @@ def main():
 		# plt.title('Actual vs Predicted Values')
 		# plt.savefig(path.join(output_path_base, f'{model_index}_{set_index}{output_suffix}_fold_{fold_num}_predictions.pdf'))
 
-	# Guardar métricas por fold en un CSV
-	errors_per_fold = pd.DataFrame(all_errors).transpose()
-
-	errors_csv_path = path.join(output_path_base, f'{model_index}_{set_index}{output_suffix}_fold_errors.csv')
-	errors_per_fold.to_csv(errors_csv_path, index=False)
+	metrics_per_fold = pd.DataFrame({
+		'MAE': all_mae,
+		'MSE': all_mse,
+		'R2': all_r2
+	})
 
 	# Compute mean and std of metrics across folds
 	mean_mae = np.mean(all_mae)
@@ -173,6 +216,9 @@ def main():
 
 	mean_r2 = np.mean(all_r2)
 	std_r2 = np.std(all_r2)
+
+	metrics_csv_path = path.join(output_path_base, f'{model_index}_{set_index}{output_suffix}_fold_metrics.csv')
+	metrics_per_fold.to_csv(metrics_csv_path, index=False)
 
 	print("\nAggregated Performance Across Folds:")
 	print(f"Mean MAE: {mean_mae:.4f} ± {std_mae:.4f}")

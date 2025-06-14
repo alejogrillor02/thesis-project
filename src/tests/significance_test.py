@@ -10,9 +10,10 @@ PLACEHOLDER
 import pandas as pd
 import yaml
 import numpy as np
+# import matplotlib.pyplot as plt
 from sys import argv
 from os import path, environ
-from scipy.stats import ttest_rel, shapiro, wilcoxon
+from scipy.stats import ttest_rel, shapiro, wilcoxon  # probplot
 
 
 def main():
@@ -26,37 +27,39 @@ def main():
 
 	NORM_ALPHA = config['NORM_ALPHA']
 	ALPHA = config['ALPHA']
-	N_FOLDS = config['N_FOLDS']
 
 	# output_path_base = path.join(environ['PROJECT_ROOT'], config['OUTPUT_DIR'], f"model_{model_index}")
 
 	df_a = pd.read_csv(metric_csv_path_a)
 	df_b = pd.read_csv(metric_csv_path_b)
+	metric = "MAE"
 
-	for fold in range(N_FOLDS):
-		a_fold_errors = np.array(df_a.iloc[:, fold].tolist())
-		b_fold_errors = np.array(df_b.iloc[:, fold].tolist())
+	a_metric = np.array(df_a[metric])
+	b_metric = np.array(df_b[metric])
 
-		diff = a_fold_errors - b_fold_errors
-		shapiro_stat_, p_normality = shapiro(diff)
-		print(f'Fold {fold + 1}: {p_normality:.8f}')
+	diff = a_metric - b_metric
+	shapiro_stat_, p_normality = shapiro(diff)
 
-		if p_normality > NORM_ALPHA:
-			print("Differences are normally distributed; using t-test.")
-			t_stat, p_value = ttest_rel(a_fold_errors, b_fold_errors)
+	# Create Q-Q plot
+	# plt.figure(figsize=(8, 6))
+	# probplot(diff, dist="norm", plot=plt)
+	# plt.title(f'Q-Q Plot for Fold {fold + 1} Differences')
+	# plt.show()
 
-			print(f"t-statistic: {t_stat:.8f}")
-			print(f"p-value: {p_value:.8f}")
-			print(f"Significant at α={ALPHA}? {p_value < ALPHA}")
+	if p_normality > NORM_ALPHA:  # Can assume errors aren't normally distributed
+		print("Differences are normally distributed; using t-test.")
+		t_stat, p_value = ttest_rel(a_metric, b_metric)
 
-		else:
-			print("Differences not normal; using Wilcoxon test.")
-			wilcoxon_stat_, p_value = wilcoxon(a_fold_errors, b_fold_errors)
+		print(f"t-statistic: {t_stat:.8f}")
+		print(f"p-value: {p_value:.8f}")
+		print(f"Significant at α={ALPHA}? {p_value < ALPHA}")
 
-			print(f"p-value: {p_value:.8f}")
-			print(f"Significant at α={ALPHA}? {p_value < ALPHA}")
+	else:
+		print("Differences not normal; using Wilcoxon test.")
+		wilcoxon_stat_, p_value = wilcoxon(a_metric, b_metric)
 
-		print('')
+		print(f"p-value: {p_value:.8f}")
+		print(f"Significant at α={ALPHA}? {p_value < ALPHA}")
 
 
 if __name__ == "__main__":

@@ -100,7 +100,7 @@ def main():
 
 		data[:, i] = normalizeminmax(col_data, norm_data, feature)
 
-	output_path = path.join(output_dir, "{model_index}.txt")
+	output_path = path.join(output_dir, f'{model_index}.txt')
 	np.savetxt(output_path, data, fmt="%d " + " ".join(["%f"] * len(FEATURES)))
 
 

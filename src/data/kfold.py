@@ -30,8 +30,7 @@ def main():
 	RANDOM_STATE = config['RANDOM_STATE']
 	DATA_DIR = path.join(environ['PROJECT_ROOT'], config['DATA_DIR'])
 
-	output_path = path.join(DATA_DIR, "train")
-	output_path_base = f"{output_path}/model_{model_index}/"
+	output_path_base = path.join(DATA_DIR, f'train/model_{model_index}')
 	makedirs(output_path_base, exist_ok=True)
 	
 	data = np.loadtxt(input_dataset)
@@ -47,7 +46,7 @@ def main():
 	for fold_idx, (train_idx, test_idx) in enumerate(split_generator, 1):
 		train_data = np.column_stack((y[train_idx], X[train_idx]))
 
-		np.savetxt(f"{output_path_base}/{model_index}_{set_index}_fold_{fold_idx}.txt", train_data, fmt="%d " + " ".join(["%f"] * len(FEATURES)))
+		np.savetxt(path.join(output_path_base, f'{model_index}_{set_index}_fold_{fold_idx}.txt'), train_data, fmt="%d " + " ".join(["%f"] * len(FEATURES)))
 
 
 if __name__ == "__main__":

@@ -29,7 +29,7 @@ def main():
 	RANDOM_STATE = config['RANDOM_STATE']
 	DATA_DIR = path.join(environ['PROJECT_ROOT'], config['DATA_DIR'])
 
-	output_path_base = path.join(DATA_DIR, "train/model_{model_index}/set_{set_index}")
+	output_path_base = path.join(DATA_DIR, f'train/model_{model_index}/set_{set_index}')
 	makedirs(output_path_base, exist_ok=True)
 	
 	data = np.loadtxt(input_dataset)

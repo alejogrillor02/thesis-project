@@ -23,5 +23,5 @@ set_strings=($(yq -r '.SETS[]' ${PROJECTDIR}/config.yaml))
 for str1 in "${model_strings[@]}"; do
 	./filter_csv.py "${DATA_DIR}/raw/${str1}.csv" && echo "Done filtering $str1.csv"
 	./process_csv.py "${DATA_DIR}/processed/filtered/${str1}_filtered.csv" && echo "Done processing $str1 model."
-	./kfold.py "${DATA_DIR}/processed/${str1}_${str2}.txt" && echo "Done sectioning $str1 model."
+	./kfold.py "${DATA_DIR}/processed/${str1}.txt" && echo "Done sectioning $str1 model."
 done

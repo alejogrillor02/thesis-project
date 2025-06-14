@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
-# TODO: Reescribir esto.
 """
-Genera folds de entrenamiento.
+Genera folds de entrenamiento usando Kfold.
 
 Usage:
 	kfold.py <input_dataset> [output_path]
@@ -36,23 +35,24 @@ def main():
 	
 	data = np.loadtxt(input_dataset)
 
-	# Separar características y etiquetas (Solo es util para G?)
 	X = data[:, 1:]
-	y = data[:, 0].astype(int)
 
 	# Configurar el tipo de KFold según el set
 	if set_index == "G":
+		# Separar la clase que hay que balancear del resto
+		sex = data[:, 0].astype(int)
 		kf = StratifiedKFold(n_splits=N_FOLDS, shuffle=True, random_state=RANDOM_STATE)
-		split_generator = kf.split(X, y)
+		split_generator = kf.split(X, sex)
 	else:
 		kf = KFold(n_splits=N_FOLDS, shuffle=True, random_state=RANDOM_STATE)
 		split_generator = kf.split(X)
 
 	# Generar los folds de entrenamiento
 	for fold_idx, (train_idx, test_idx) in enumerate(split_generator, 1):
-		train_data = np.column_stack((y[train_idx], X[train_idx]))
+		# train_data = np.column_stack((sex[train_idx], X[train_idx]))
+		train_data = X[train_idx]
 
-		np.savetxt(f"{output_path_base}/{model_index}_{set_index}_fold_{fold_idx}.txt", train_data, fmt="%d " + " ".join(["%f"] * len(FEATURES)))
+		np.savetxt(f"{output_path_base}/{model_index}_{set_index}_fold_{fold_idx}.txt", train_data, " ".join(["%f"] * len(FEATURES)))
 
 
 if __name__ == "__main__":

@@ -28,5 +28,4 @@ for str1 in "${model_strings[@]}"; do
 		./kfold.py "${DATA_DIR}/processed/${str1}_${str2}.txt" && echo "Done sectioning $str1 model for $str2 set."
 		mv "${DATA_DIR}/processed/${str1}_${str2}_test.txt" "${DATA_DIR}/train/model_${str1}/set_${str2}"
 	done
-	echo -n '\n'
 done

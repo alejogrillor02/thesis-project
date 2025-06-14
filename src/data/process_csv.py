@@ -120,11 +120,13 @@ def main():
 
 	for df_i, df_i_test, set_i in set_list:
 
-		data = np.empty((len(df_i), len(FEATURES)))
+		data = np.empty((len(df_i), len(FEATURES) + 1))
+		data[:, 0] = [1 if entry == "M" else 0 for entry in df_i["SEXO"]]
 
-		data_test = np.empty((len(df_i_test), len(FEATURES)))
+		data_test = np.empty((len(df_i_test), len(FEATURES) + 1))
+		data_test[:, 0] = [1 if entry == "M" else 0 for entry in df_i_test["SEXO"]]
 
-		for i, feature in enumerate(FEATURES):
+		for i, feature in enumerate(FEATURES, start=1):
 			if feature == "REF_POST":
 				# Caso especial para feature compuesto
 				col_data = df_i["ESF2"] + (df_i["CIL2"] / 2)
@@ -140,8 +142,8 @@ def main():
 
 		output_path = f"{output_dir}/{model_index}_{set_i}.txt"
 		output_path_test = f"{output_dir}/{model_index}_{set_i}_test.txt"
-		np.savetxt(output_path, data, " ".join(["%f"] * len(FEATURES)))
-		np.savetxt(output_path_test, data_test, " ".join(["%f"] * len(FEATURES)))
+		np.savetxt(output_path, data, fmt="%d " + " ".join(["%f"] * len(FEATURES)))
+		np.savetxt(output_path_test, data_test, fmt="%d " + " ".join(["%f"] * len(FEATURES)))
 
 
 if __name__ == "__main__":

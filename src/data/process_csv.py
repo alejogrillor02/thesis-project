@@ -140,7 +140,7 @@ def main():
 
 		output_path = f"{output_dir}/{model_index}_{set_i}.txt"
 		output_path_test = f"{output_dir}/{model_index}_{set_i}_test.txt"
-		np.savetxt(output_path, data, fmt="%d " + " ".join(["%f"] * len(FEATURES)))
+		np.savetxt(output_path, data, " ".join(["%f"] * len(FEATURES)))
 		np.savetxt(output_path_test, data_test, " ".join(["%f"] * len(FEATURES)))
 
 

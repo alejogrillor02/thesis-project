@@ -124,7 +124,7 @@ def main():
 
 		data_test = np.empty((len(df_i_test), len(FEATURES)))
 
-		for i, feature in enumerate(FEATURES, start=1):
+		for i, feature in enumerate(FEATURES):
 			if feature == "REF_POST":
 				# Caso especial para feature compuesto
 				col_data = df_i["ESF2"] + (df_i["CIL2"] / 2)

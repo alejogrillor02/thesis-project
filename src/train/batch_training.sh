@@ -22,7 +22,7 @@ for str1 in "${model_strings[@]}"; do
 	for str2 in "${set_strings[@]}"; do
 		for ((i = 1; i <= folds; i++)); do
 			./train.py ${str1} ${str2} $i && echo "Done training $str1 model for $str2 set, fold $i."
-			echo -n '\n'
+			echo
 		done
 	done
 done

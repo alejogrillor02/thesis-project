@@ -13,8 +13,8 @@ import matplotlib.pyplot as plt
 import yaml
 from sys import argv
 from os import makedirs, path, environ
-from tensorflow.keras.models import Sequential, Model
-from tensorflow.keras.layers import Input, Dense, Dropout, BatchNormalization, Concatenate, Embedding, Flatten
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense, Dropout, BatchNormalization
 from tensorflow.keras.activations import relu  # sigmoid, tanh
 from tensorflow.keras.callbacks import ModelCheckpoint  # , EarlyStopping, ReduceLROnPlateau
 from tensorflow.keras.losses import mae, logcosh
@@ -50,33 +50,6 @@ def main():
 
 		return model
 
-	def create_model_embedded(inputs: int, outputs: int):
-		"""Docstring..."""
-		
-		# Input layers
-		categorical_input = Input(shape=(1,), name='sex_input')
-		numerical_input = Input(shape=(inputs - 1,), name='numerical_input')
-		
-		# Embedding layer
-		sex_embedded = Embedding(input_dim=2, output_dim=4)(categorical_input)
-		sex_embedded = Flatten()(sex_embedded)
-		
-		# Process numerical features
-		x = Dense(128, activation=relu, kernel_regularizer=l2(0.01))(numerical_input)
-		x = BatchNormalization()(x)
-		x = Dropout(0.5)(x)
-		x = Dense(64, activation=relu, kernel_regularizer=l2(0.01))(x)
-		x = BatchNormalization()(x)
-		x = Dropout(0.3)(x)
-		
-		# Concatenate
-		combined = Concatenate()([sex_embedded, x])
-		
-		# Final output
-		output = Dense(outputs)(combined)
-		
-		return Model(inputs=[categorical_input, numerical_input], outputs=output)
-
 	model_index = argv[1]
 	set_index = argv[2]
 	val_fold = int(argv[3])
@@ -108,29 +81,18 @@ def main():
 			y_train_parts.append(y)
 
 	# Concatenate all training parts
-	X_train = np.delete(np.concatenate(X_train_parts, axis=0), 0, axis=1) if set_index != "E" else np.concatenate(X_train_parts, axis=0)
+	X_train = np.concatenate(X_train_parts, axis=0)
 	y_train = np.concatenate(y_train_parts, axis=0)
-
-	X_val = np.delete(X_val, 0, axis=1) if set_index != "E" else X_val
 
 	# Create and compile model
 	n_features = X_train.shape[1]
 	n_labels = 1
-	model = create_model(n_features, n_labels) if set_index != "E" else create_model_embedded(n_features, n_labels)
+	model = create_model(n_features, n_labels)
 	model.compile(
 		optimizer=Adam(learning_rate=LEARNING_RATE),
 		loss=logcosh,
 		metrics=[mae]
 	)
-
-	if set_index == "E":
-		sex_train = X_train[:, 0].astype(int)
-		X_train_num = X_train[:, 1:]
-		X_train = {'sex_input': sex_train, 'numerical_input': X_train_num}
-
-		sex_val = X_val[:, 0].astype(int)
-		X_val_num = X_val[:, 1:]
-		X_val = {'sex_input': sex_val, 'numerical_input': X_val_num}
 
 	# Set up model checkpoint and other callbacks
 	model_path = path.join(output_path, f'{model_index}_{set_index}_fold_{val_fold}.keras')

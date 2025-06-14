@@ -53,23 +53,13 @@ def main():
 	for fold_num in range(1, N_FOLDS + 1):
 		X, _y = load_fold_data(TRAIN_DATA_DIR, fold_num)
 		X_train_parts.append(X)
-	X_train = np.delete(np.concatenate(X_train_parts, axis=0), 0, axis=1) if set_index != "E" else np.concatenate(X_train_parts, axis=0)
+	X_train = np.concatenate(X_train_parts, axis=0)
 
 	# Get a random sample for background
 	background = X_train[np.random.choice(X_train.shape[0], 400, replace=False)]
 
 	data = np.loadtxt(path.join(TRAIN_DATA_DIR, f'{model_index}_{set_index}_test.txt'))
 	X_test = data[:, :-1]
-	X_test = np.delete(X_test, 0, axis=1)
-
-	if set_index == "E":
-		sex_test = X_test[:, 0].astype(int)
-		X_test_num = X_test[:, 1:]
-		X_test = {'sex_input': sex_test, 'numerical_input': X_test_num}
-
-		sex_train = X_train[:, 0].astype(int)
-		X_train_num = X_train[:, 1:]
-		X_train = {'sex_input': sex_train, 'numerical_input': X_train_num}
 
 	# Compute SHAP values for each fold
 	shap_values_per_fold = []

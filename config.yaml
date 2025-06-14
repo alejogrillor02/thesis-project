@@ -5,31 +5,31 @@ OUTPUT_DIR: "output"
 
 # Data Preprocessing
 FEATURES:
-  - "REF_ESP" # Recomendacion del Especialista
+  - "REF_ESP" # Recomendacion del Especialista # Bueno
   # - "C_P" # Esto aparentemente tiene el mismo valor que el label?
-  # - "EDAD"
+  - "EDAD"
   # - "SEXO"
-  # - "AVSC1"
+  - "AVSC1"
   # - "AVCC1" # Hay varios features como este que tienen valores similares en muchos casos
-  # - "ESF1"
-  # - "CIL1"
-  # - "EJE1"
-  # - "AVSC2"
-  # - "AVCC2"
-  - "REF_POST" # ESF2 + CIL2/2 # Recomendacion del Especialista
+  - "ESF1"
+  - "CIL1"
+  - "EJE1"
+  - "AVSC2"
+  - "AVCC2"
+  - "REF_POST" # ESF2 + CIL2/2 # Recomendacion del Especialista # Bueno
   # - "DELTA_REF" # REF_POST - REF_ESP
-  # - "ESF2"
-  # - "CIL2"
-  # - "EJE2"
-  # - "MF1"
-  # - "MD1"
-  - "K1" # Recomendacion del Especialista
-  # - "WTW"
-  # - "CENTRO"
-  # - "DP"
-  # - "GC"
-  # - "PCA" # Recomendacion del Especialista
-  - "LAXIAL" # Recomendacion del Especialista
+  - "ESF2"
+  - "CIL2"
+  - "EJE2"
+  - "MF1"
+  - "MD1"
+  - "K1" # Recomendacion del Especialista # Bueno
+  - "WTW"
+  - "CENTRO"
+  - "DP"
+  - "GC"
+  - "PCA" # Recomendacion del Especialista
+  - "LAXIAL" # Recomendacion del Especialista # Bueno
   - "LENTE_DEF" # Este es el Label
 MODELS:
   # - "432"
@@ -42,7 +42,7 @@ SETS:
   - "M"
   - "F"
   - "E"
-N_FOLDS: 10 # N_FOLDS >= 2
+N_FOLDS: 5 # N_FOLDS >= 2
 
 # Training
 EPOCHS: 1024

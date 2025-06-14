@@ -77,13 +77,6 @@ def main():
 	# Load test data
 	test_data_path = path.join(environ['PROJECT_ROOT'], config['DATA_DIR'], f"train/model_{model_index}/set_{test_data_set_index}/{model_index}_{test_data_set_index}_test.txt")
 	X_test, y_test = load_test_data(test_data_path)
-	X_test = np.delete(X_test, 0, axis=1) if set_index != "E" else X_test
-
-	if set_index == "E":
-		sex_test = X_test[:, 0].astype(int)
-		X_test_num = X_test[:, 1:]
-
-		X_test = {'sex_input': sex_test, 'numerical_input': X_test_num}
 
 	# Load norm metrics
 	norm_stats_path = path.join(environ['PROJECT_ROOT'], config['DATA_DIR'], f'processed/{model_index}_norm_stats.csv')

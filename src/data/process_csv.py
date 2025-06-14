@@ -92,14 +92,10 @@ def main():
 
 	df_f = df_f.sample(n=u_size, random_state=RANDOM_STATE)
 	df_m = df_m.sample(n=u_size, random_state=RANDOM_STATE)
-	df_e = df.sample(n=u_size, random_state=RANDOM_STATE)  # Nota: Si dejas el set entero entrena muy bien tho
 
 	# Hace un sample aleatorio de u_size filas
 	df_f_train, df_f_test = train_test_split(df_f, test_size=0.2, random_state=RANDOM_STATE)
 	df_m_train, df_m_test = train_test_split(df_m, test_size=0.2, random_state=RANDOM_STATE)
-
-	# Hace el test split para el modelo de embedding
-	df_e_train, df_e_test = train_test_split(df_e, test_size=0.2, random_state=RANDOM_STATE)
 
 	# Tamaño uniforme
 	u_train_size = min(df_f_train.shape[0], df_m_train.shape[0])
@@ -119,17 +115,14 @@ def main():
 		set_list.append(
 			(df_f_train, df_f_test, "F") if set_index == "F" else
 			(df_m_train, df_m_test, "M") if set_index == "M" else
-			(df_g_train, df_g_test, "G") if set_index == "G" else
-			(df_e_train, df_e_test, "E")
+			(df_g_train, df_g_test, "G")
 		)
 
 	for df_i, df_i_test, set_i in set_list:
 
-		data = np.empty((len(df_i), len(FEATURES) + 1))
-		data[:, 0] = [1 if entry == "M" else 0 for entry in df_i["SEXO"]]
+		data = np.empty((len(df_i), len(FEATURES)))
 
-		data_test = np.empty((len(df_i_test), len(FEATURES) + 1))
-		data_test[:, 0] = [1 if entry == "M" else 0 for entry in df_i_test["SEXO"]]
+		data_test = np.empty((len(df_i_test), len(FEATURES)))
 
 		for i, feature in enumerate(FEATURES, start=1):
 			if feature == "REF_POST":

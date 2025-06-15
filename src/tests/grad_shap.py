@@ -57,15 +57,16 @@ def main():
 		background = X_train[np.random.choice(X_train.shape[0], 400, replace=False)]
 		background_cat = background[:, 0].astype(int).reshape(-1, 1)
 		background_num = background[:, 1:]
+		background = np.concatenate([background_cat, background_num])
 		
 		# Compute SHAP values for embedded model
-		explainer = shap.GradientExplainer(model, [background_cat, background_num])
+		explainer = shap.GradientExplainer(model, background)
+
 		test_cat = X_test[:, 0].astype(int).reshape(-1, 1)
 		test_num = X_test[:, 1:]
-
-		print(test_cat.shape)
-		print(test_num.shape)
-		shap_values_array = explainer([test_cat, test_num])
+		X_test = np.concatenate([test_cat, test_num])
+		
+		shap_values_array = explainer(X_test)
 	else:
 		X_test = np.delete(X_test, 0, axis=1)
 		X_train = np.delete(X_train, 0, axis=1)

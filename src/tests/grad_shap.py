@@ -65,7 +65,7 @@ def main():
 		# Get a random sample for background
 		background = X_train[np.random.choice(X_train.shape[0], 400, replace=False)]
 
-		explainer = shap.GradientExplainer(models[fold], background)
+		explainer = shap.GradientExplainer(models[i], background)
 		shap_values = explainer.shap_values(X_test)
 
 		print(shap_values.shape)

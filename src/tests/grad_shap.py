@@ -73,7 +73,7 @@ def main():
 
 	print(shap_values.shape)
 
-	shap_values_meaned = np.abs(np.mean(shap_values, axis=0))
+	shap_values_meaned = np.abs(np.mean(shap_values, axis=0)).flatten
 
 	# Crear DataFrame
 	importance_df = pd.DataFrame({

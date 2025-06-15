@@ -79,7 +79,7 @@ def main():
 
 	plt.figure(figsize=(12, 8))
 	plt.barh(
-		importance_df['Feature'], importance_df['SHAP_mean'],
+		importance_df['Feature'], importance_df['SHAP_values'],
 		color=np.where(importance_df['SHAP_values'] > 0, 'skyblue', 'salmon')
 	)
 	plt.xlabel('Valor SHAP promedio', fontsize=12)

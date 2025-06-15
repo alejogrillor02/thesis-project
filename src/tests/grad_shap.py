@@ -21,7 +21,7 @@ def main():
 	def load_fold_data(fold_path, fold_number):
 		"""Load fold data from text file"""
 
-		filename = f"{model_index}_{set_index}_fold_{fold_number}.txt"
+		filename = f"{model_index}_fold_{fold_number}.txt"
 		filepath = path.join(fold_path, filename)
 		data = np.loadtxt(filepath)
 		X = data[:, :-1]

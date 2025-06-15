@@ -69,7 +69,7 @@ def main():
 
 	# Compute SHAP values for each fold
 	explainer = shap.GradientExplainer(model, background)
-	shap_values = explainer.shap_values(X_test)
+	shap_values = explainer(X_test)
 	# shap_values_per_fold.append(shap_values)
 
 	# Gráfico de importancia bruta

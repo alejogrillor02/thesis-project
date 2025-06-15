@@ -39,6 +39,7 @@ def main():
 		config = yaml.safe_load(f)
 
 	FEATURES = config['FEATURES']
+	BACKGROUND_SIZE = config['BACKGROUND_SIZE']
 	MODEL_DIR = path.join(environ['PROJECT_ROOT'], config['MODEL_DIR'], f"model_{model_index}/set_{set_index}")
 	TRAIN_DATA_DIR = path.join(environ['PROJECT_ROOT'], config['DATA_DIR'], f"train/model_{model_index}")
 
@@ -54,23 +55,19 @@ def main():
 
 	if set_index == "E":
 		# For embedded model, split into categorical and numerical features
-		background = X_train[np.random.choice(X_train.shape[0], 400, replace=False)]
-		background_cat = background[:, 0].astype(int).reshape(-1, 1)
-		background_num = background[:, 1:]
-		background = np.concatenate([background_cat, background_num], axis=1)
+		background = X_train[np.random.choice(X_train.shape[0], BACKGROUND_SIZE, replace=False)]
+		background = [background[:, 0], background[:, 1:]]
 		
 		# Compute SHAP values for embedded model
 		explainer = shap.GradientExplainer(model, background)
 
-		test_cat = X_test[:, 0].astype(int).reshape(-1, 1)
-		test_num = X_test[:, 1:]
-		X_test = np.concatenate([test_cat, test_num], axis=1)
+		X_test = [X_test[:, 0], X_test[:, 1:]]
 		
-		shap_values_array = explainer([test_cat, test_num])
+		shap_values_array = explainer(X_test)
 	else:
 		X_test = np.delete(X_test, 0, axis=1)
 		X_train = np.delete(X_train, 0, axis=1)
-		background = X_train[np.random.choice(X_train.shape[0], 400, replace=False)]
+		background = X_train[np.random.choice(X_train.shape[0], BACKGROUND_SIZE, replace=False)]
 		
 		# Compute SHAP values for regular model
 		explainer = shap.GradientExplainer(model, background)

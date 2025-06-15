@@ -56,12 +56,12 @@ def main():
 	if set_index == "E":
 		# For embedded model, split into categorical and numerical features
 		background = X_train[np.random.choice(X_train.shape[0], BACKGROUND_SIZE, replace=False)]
-		background = [background[:, 0], background[:, 1:]]
+		background = [background[:, 0].reshape(-1, 1), background[:, 1:]]
 		
 		# Compute SHAP values for embedded model
 		explainer = shap.GradientExplainer(model, background)
 
-		X_test = [X_test[:, 0], X_test[:, 1:]]
+		X_test = [X_test[:, 0].reshape(-1, 1), X_test[:, 1:]]
 
 		print("Categorical input shape:", X_test[0].shape)
 		print("Numerical input shape:", X_test[1].shape)

@@ -19,10 +19,10 @@ model_strings=($(yq -r '.MODELS[]' ${PROJECTDIR}/config.yaml))
 set_strings=($(yq -r '.SETS[]' ${PROJECTDIR}/config.yaml))
 
 for str1 in "${model_strings[@]}"; do
-	for str2 in "${set_strings[@]}"; do
-		for ((i = 1; i <= 2; i++)); do
-			./grad_shap.py ${str1} ${str2} $i && echo "Done computing SHAP values for $str1 model for $str2 set."
-			echo
-		done
+	# for str2 in "${set_strings[@]}"; do
+	for ((i = 1; i <= 2; i++)); do
+		./grad_shap.py ${str1} "E" $i && echo "Done computing SHAP values for $str1 model for $str2 set."
+		echo
 	done
+	# done
 done

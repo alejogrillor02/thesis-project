@@ -81,6 +81,8 @@ def main():
 		'SHAP_values': shap_values_meaned
 	})
 
+	print(importance_df)
+
 	plt.figure(figsize=(12, 8))
 	plt.barh(importance_df['Feature'], importance_df['SHAP_values'], color='salmon')
 	plt.xlabel('Valor SHAP promedio', fontsize=12)

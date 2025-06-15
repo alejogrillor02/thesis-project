@@ -67,22 +67,18 @@ def main():
 
 		explainer = shap.GradientExplainer(models[i], background)
 		shap_values = explainer.shap_values(X_test)
-
-		print(shap_values.shape)
-		print(shap_values)
+		shap_values = np.squeeze(shap_values)  # Aplanar la ultima dimension
+		mean_abs_shap = np.mean(np.abs(shap_values), axis=0)
 
 		# Crear DataFrame
 		importance_df = pd.DataFrame({
 			'Feature': FEATURES[:-1],
-			'SHAP_mean': shap_values
+			'SHAP_mean': mean_abs_shap
 		})
 
 		# Gráfico de importancia bruta
 		plt.figure(figsize=(12, 8))
-		plt.barh(
-			importance_df['Feature'], importance_df['SHAP_mean'],
-			color=np.where(importance_df['SHAP_mean'] > 0, 'skyblue', 'salmon')
-		)
+		plt.barh(importance_df['Feature'], importance_df['SHAP_mean'], 'salmon')
 		plt.xlabel('Valor SHAP promedio', fontsize=12)
 		plt.ylabel('Feature', fontsize=12)
 		plt.title('Impacto de Features en la Predicción (SHAP Values)', fontsize=14)

@@ -76,6 +76,8 @@ def main():
 	plt.figure(figsize=(12, 8))
 	shap.plots.bar(shap_values)
 	plt.xlabel('Valor SHAP promedio', fontsize=12)
+	plt.ylabel('Feature', fontsize=12)
+	plt.title('Impacto de Features en la Predicción (SHAP Values)', fontsize=14)
 	plt.tight_layout()
 	plt.savefig(path.join(output_path_base, f'{model_index}_{set_index}_fold_{train_fold}_shap_values.pdf'))
 	plt.close()

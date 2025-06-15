@@ -66,7 +66,7 @@ def main():
 		test_num = X_test[:, 1:]
 		X_test = np.concatenate([test_cat, test_num], axis=1)
 		
-		shap_values_array = explainer(X_test)
+		shap_values_array = explainer([test_cat, test_num])
 	else:
 		X_test = np.delete(X_test, 0, axis=1)
 		X_train = np.delete(X_train, 0, axis=1)

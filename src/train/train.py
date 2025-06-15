@@ -27,7 +27,7 @@ def main():
 	def load_fold_data(fold_path, fold_number):
 		"""Docstring..."""
 
-		filename = f"{model_index}_{set_index}_fold_{fold_number}.txt"
+		filename = f"{model_index}_fold_{fold_number}.txt"
 		filepath = path.join(fold_path, filename)
 		data = np.loadtxt(filepath)
 		X = data[:, :-1]
@@ -79,39 +79,26 @@ def main():
 
 	model_index = argv[1]
 	set_index = argv[2]
-	val_fold = int(argv[3])
+	train_fold = int(argv[3])
 
 	config_path = path.join(environ['PROJECT_ROOT'], 'config.yaml')
 	with open(config_path, 'r') as f:
 		config = yaml.safe_load(f)
 
-	N_FOLDS = config['N_FOLDS']
 	EPOCHS = config['EPOCHS']
+	VAL_SPLIT = config['VAL_SPLIT']
 	BATCH_SIZE = config['BATCH_SIZE']
 	LEARNING_RATE = config['LEARNING_RATE']
 
-	TRAINDATA_DIR = path.join(environ['PROJECT_ROOT'], config['DATA_DIR'], f"train/model_{model_index}/set_{set_index}")
+	TRAINDATA_DIR = path.join(environ['PROJECT_ROOT'], config['DATA_DIR'], f"train/model_{model_index}")
 
 	output_path = path.join(environ['PROJECT_ROOT'], config['MODEL_DIR'], f"model_{model_index}/set_{set_index}")
 	makedirs(output_path, exist_ok=True)
 
-	# Cargar el set de training y de validación
-	X_train_parts = []
-	y_train_parts = []
-
-	for fold_num in range(1, N_FOLDS + 1):
-		if fold_num == val_fold:
-			X_val, y_val = load_fold_data(TRAINDATA_DIR, fold_num)
-		else:
-			X, y = load_fold_data(TRAINDATA_DIR, fold_num)
-			X_train_parts.append(X)
-			y_train_parts.append(y)
-
+	X_train, y_train = load_fold_data(TRAINDATA_DIR, train_fold)
+	
 	# Concatenate all training parts
-	X_train = np.delete(np.concatenate(X_train_parts, axis=0), 0, axis=1) if set_index != "E" else np.concatenate(X_train_parts, axis=0)
-	y_train = np.concatenate(y_train_parts, axis=0)
-
-	X_val = np.delete(X_val, 0, axis=1) if set_index != "E" else X_val
+	X_train = np.delete(X_train, 0, axis=1) if set_index != "E" else X_train
 
 	# Create and compile model
 	n_features = X_train.shape[1]
@@ -128,12 +115,8 @@ def main():
 		X_train_num = X_train[:, 1:]
 		X_train = {'sex_input': sex_train, 'numerical_input': X_train_num}
 
-		sex_val = X_val[:, 0].astype(int)
-		X_val_num = X_val[:, 1:]
-		X_val = {'sex_input': sex_val, 'numerical_input': X_val_num}
-
 	# Set up model checkpoint and other callbacks
-	model_path = path.join(output_path, f'{model_index}_{set_index}_fold_{val_fold}.keras')
+	model_path = path.join(output_path, f'{model_index}_{set_index}_fold_{train_fold}.keras')
 	checkpoint = ModelCheckpoint(
 		model_path,
 		save_best_only=True,
@@ -159,7 +142,7 @@ def main():
 	# Train the model
 	stat = model.fit(
 		X_train, y_train,
-		validation_data=(X_val, y_val),
+		validation_split=VAL_SPLIT,
 		epochs=EPOCHS,
 		batch_size=BATCH_SIZE,
 		# callbacks=[early_stopping, reduce_lr, checkpoint],
@@ -175,7 +158,7 @@ def main():
 	plt.xlabel('Epoch')
 	plt.ylabel('Loss')
 	plt.legend()
-	plt.savefig(path.join(output_path, f'{model_index}_{set_index}_fold_{val_fold}_loss.pdf'))
+	plt.savefig(path.join(output_path, f'{model_index}_{set_index}_fold_{train_fold}_loss.pdf'))
 	plt.close()
 
 

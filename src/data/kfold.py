@@ -19,13 +19,12 @@ def main():
 
 	input_dataset = argv[1]
 	model_index = path.basename(input_dataset)[:3]
-	set_index = path.basename(input_dataset)[4]
 
 	config_path = path.join(environ['PROJECT_ROOT'], 'config.yaml')
 	with open(config_path, 'r') as f:
 		config = yaml.safe_load(f)
 
-	N_FOLDS = config['N_FOLDS']
+	N_FOLDS = 2  # Don't change this
 	FEATURES = config['FEATURES']
 	RANDOM_STATE = config['RANDOM_STATE']
 	DATA_DIR = path.join(environ['PROJECT_ROOT'], config['DATA_DIR'])
@@ -46,7 +45,7 @@ def main():
 	for fold_idx, (train_idx, test_idx) in enumerate(split_generator, 1):
 		train_data = np.column_stack((y[train_idx], X[train_idx]))
 
-		np.savetxt(path.join(output_path_base, f'{model_index}_{set_index}_fold_{fold_idx}.txt'), train_data, fmt="%d " + " ".join(["%f"] * len(FEATURES)))
+		np.savetxt(path.join(output_path_base, f'{model_index}_fold_{fold_idx}.txt'), train_data, fmt="%d " + " ".join(["%f"] * len(FEATURES)))
 
 
 if __name__ == "__main__":

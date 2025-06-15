@@ -16,13 +16,12 @@ export PROJECT_ROOT="$PROJECTDIR"
 
 model_strings=($(yq -r '.MODELS[]' ${PROJECTDIR}/config.yaml))
 set_strings=($(yq -r '.SETS[]' ${PROJECTDIR}/config.yaml))
-folds=$(yq -r '.N_FOLDS' ${PROJECTDIR}/config.yaml)
 
 for str1 in "${model_strings[@]}"; do
 	for str2 in "${set_strings[@]}"; do
-		for ((i = 1; i <= folds; i++)); do
+		for ((i = 1; i <= 2; i++)); do
 			./train.py ${str1} ${str2} $i && echo "Done training $str1 model for $str2 set, fold $i."
-			echo -n '\n'
+			echo
 		done
 	done
 done

@@ -69,7 +69,7 @@ def main():
 		
 		# Compute SHAP values for regular model
 		explainer = shap.GradientExplainer(model, background)
-		shap_values = explainer(X_test)
+		shap_values = explainer.shap_values(X_test)
 
 	print(shap_values.shape)
 

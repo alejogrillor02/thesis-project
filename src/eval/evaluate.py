@@ -165,11 +165,20 @@ def main():
 	metrics_per_fold = pd.DataFrame({
 		'MAE': [mae_score],
 		'MSE': [mse_score],
-		'R2': [r2_score]
+		'R2': [r2]
 	})
 
-	metrics_csv_path = path.join(output_path_base, f'{model_index}_{set_index}_fold_{test_fold}_metrics.csv')
-	metrics_per_fold.to_csv(metrics_csv_path, index=False)
+	metrics_csv_path = path.join(output_path_base, f'{model_index}_{set_index}_metrics.csv')
+
+	# Check if file exists
+	if path.exists(metrics_csv_path):
+		# Read existing data and append new row
+		existing_metrics = pd.read_csv(metrics_csv_path)
+		updated_metrics = pd.concat([existing_metrics, metrics_per_fold], ignore_index=True)
+		updated_metrics.to_csv(metrics_csv_path, index=False)
+	else:
+		# Save new file if it doesn't exist
+		metrics_per_fold.to_csv(metrics_csv_path, index=False)
 
 
 if __name__ == "__main__":

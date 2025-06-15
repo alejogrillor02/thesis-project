@@ -64,10 +64,10 @@ def main():
 		# Process numerical features
 		x = Dense(128, activation=relu, kernel_regularizer=l2(0.01))(numerical_input)
 		x = BatchNormalization()(x)
-		x = Dropout(0.5)(x)
+		x = Dropout(0.5, )(x)
 		x = Dense(64, activation=relu, kernel_regularizer=l2(0.01))(x)
 		x = BatchNormalization()(x)
-		x = Dropout(0.3)(x)
+		x = Dropout(0.3, )(x)
 		
 		# Concatenate
 		combined = Concatenate()([sex_embedded, x])
@@ -89,7 +89,6 @@ def main():
 	VAL_SPLIT = config['VAL_SPLIT']
 	BATCH_SIZE = config['BATCH_SIZE']
 	LEARNING_RATE = config['LEARNING_RATE']
-
 	TRAINDATA_DIR = path.join(environ['PROJECT_ROOT'], config['DATA_DIR'], f"train/model_{model_index}")
 
 	output_path = path.join(environ['PROJECT_ROOT'], config['MODEL_DIR'], f"model_{model_index}/set_{set_index}")

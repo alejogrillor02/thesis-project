@@ -1,0 +1,4 @@
+Differences are normally distributed; using t-test.
+t-statistic: 0.70842037
+p-value: 0.49662145
+Significant at α=0.05? False

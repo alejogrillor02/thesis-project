@@ -48,7 +48,6 @@ def main():
 		config = yaml.safe_load(f)
 
 	FEATURES = config['FEATURES']
-	RANDOM_STATE = config['RANDOM_STATE']
 	DATA_DIR = path.join(environ['PROJECT_ROOT'], config['DATA_DIR'])
 
 	output_dir = path.join(DATA_DIR, "processed")
@@ -84,7 +83,7 @@ def main():
 	size = len(df)
 
 	# Shuffle
-	df = df.sample(n=size, random_state=RANDOM_STATE)
+	df = df.sample(n=size)
 
 	data = np.empty((len(df), len(FEATURES) + 1))
 	data[:, 0] = [1 if entry == "M" else 0 for entry in df["SEXO"]]

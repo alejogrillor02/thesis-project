@@ -28,8 +28,6 @@ def main():
 	NORM_ALPHA = config['NORM_ALPHA']
 	ALPHA = config['ALPHA']
 
-	# output_path_base = path.join(environ['PROJECT_ROOT'], config['OUTPUT_DIR'], f"model_{model_index}")
-
 	df_a = pd.read_csv(metric_csv_path_a)
 	df_b = pd.read_csv(metric_csv_path_b)
 	metric = "MAE"

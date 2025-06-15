@@ -26,7 +26,6 @@ def main():
 
 	N_FOLDS = 2  # Don't change this
 	FEATURES = config['FEATURES']
-	RANDOM_STATE = config['RANDOM_STATE']
 	DATA_DIR = path.join(environ['PROJECT_ROOT'], config['DATA_DIR'])
 
 	output_path_base = path.join(DATA_DIR, f'train/model_{model_index}')
@@ -38,7 +37,7 @@ def main():
 	X = data[:, 1:]
 	y = data[:, 0].astype(int)
 
-	kf = StratifiedKFold(n_splits=N_FOLDS, shuffle=True, random_state=RANDOM_STATE)
+	kf = StratifiedKFold(n_splits=N_FOLDS, shuffle=True)
 	split_generator = kf.split(X, y)
 
 	# Generar los folds de entrenamiento

@@ -62,7 +62,12 @@ def main():
 		explainer = shap.GradientExplainer(model, background)
 
 		X_test = [X_test[:, 0], X_test[:, 1:]]
-		
+
+		print("Categorical input shape:", X_test[0].shape)
+		print("Numerical input shape:", X_test[1].shape)
+		model.summary()
+		model.input  # Should show both inputs
+
 		shap_values_array = explainer(X_test)
 	else:
 		X_test = np.delete(X_test, 0, axis=1)

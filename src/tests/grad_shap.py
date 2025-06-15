@@ -59,9 +59,17 @@ def main():
 		background = [background[:, 0].reshape(-1, 1), background[:, 1:]]
 		
 		# Compute SHAP values for embedded model
-		explainer = shap.GradientExplainer(model, background)
+		def model_predict(X):
+			if isinstance(X, list):
+				# Directly from explainer
+				return model.predict(X)
+			else:
+				# From KernelExplainer - split into two inputs
+				return model.predict([X[:, :1], X[:, 1:]])
 
-		X_test = [X_test[:, 0].reshape(-1, 1), X_test[:, 1:]]
+		explainer = shap.KernelExplainer(model_predict, np.column_stack([background[0], background[1]]))
+
+		X_test = np.column_stack([X_test[:, 0].reshape(-1, 1), X_test[:, 1:]])
 
 		print("Categorical input shape:", X_test[0].shape)
 		print("Numerical input shape:", X_test[1].shape)

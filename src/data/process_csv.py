@@ -123,8 +123,8 @@ def main():
 		data = np.empty((len(df_i), len(FEATURES) + 1))
 		data[:, 0] = [1 if entry == "M" else 0 for entry in df_i["SEXO"]]
 
-		data_test = np.empty((len(df_i_test), len(FEATURES) + 1))
-		data_test[:, 0] = [1 if entry == "M" else 0 for entry in df_i_test["SEXO"]]
+		data_test = np.empty((len(df_i_test), len(FEATURES)))
+		# data_test[:, 0] = [1 if entry == "M" else 0 for entry in df_i_test["SEXO"]]
 
 		for i, feature in enumerate(FEATURES, start=1):
 			if feature == "REF_POST":
@@ -138,12 +138,12 @@ def main():
 				col_data = df_i[feature]
 				col_test_data = df_i_test[feature]
 
-			data[:, i], data_test[:, i] = normalizeminmax(col_data, col_test_data, norm_data, feature)
+			data[:, i], data_test[:, i - 1] = normalizeminmax(col_data, col_test_data, norm_data, feature)
 
 		output_path = f"{output_dir}/{model_index}_{set_i}.txt"
 		output_path_test = f"{output_dir}/{model_index}_{set_i}_test.txt"
 		np.savetxt(output_path, data, fmt="%d " + " ".join(["%f"] * len(FEATURES)))
-		np.savetxt(output_path_test, data_test, fmt="%d " + " ".join(["%f"] * len(FEATURES)))
+		np.savetxt(output_path_test, data_test, fmt=" ".join(["%f"] * len(FEATURES)))
 
 
 if __name__ == "__main__":

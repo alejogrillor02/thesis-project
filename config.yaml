@@ -24,10 +24,10 @@ FEATURES:
   - "MF1"
   - "MD1"
   - "K1" # Recomendacion del Especialista # Bueno
-  - "WTW"
-  - "CENTRO"
-  - "DP"
-  - "GC"
+  # - "WTW" # Contiene un monton de datos faltantes no regenerables
+  # - "CENTRO" # Contiene un monton de datos faltantes no regenerables
+  # - "DP" # Contiene un monton de datos faltantes no regenerables
+  # - "GC" # Contiene un monton de datos faltantes no regenerables
   - "PCA" # Recomendacion del Especialista
   - "LAXIAL" # Recomendacion del Especialista # Bueno
   - "LENTE_DEF" # Este es el Label

@@ -82,10 +82,7 @@ def main():
 	})
 
 	plt.figure(figsize=(12, 8))
-	plt.barh(
-		importance_df['Feature'], importance_df['SHAP_values'],
-		color=np.where(importance_df['SHAP_values'] > 0, 'skyblue', 'salmon')
-	)
+	plt.barh(importance_df['Feature'], importance_df['SHAP_values'], color='salmon')
 	plt.xlabel('Valor SHAP promedio', fontsize=12)
 	plt.ylabel('Feature', fontsize=12)
 	# plt.title('Impacto de Features en la Predicción (SHAP Values)', fontsize=14)

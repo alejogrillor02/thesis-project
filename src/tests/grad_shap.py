@@ -68,7 +68,7 @@ def main():
 		explainer = shap.GradientExplainer(models[i], background)
 		shap_values = explainer.shap_values(X_test)
 		shap_values = np.squeeze(shap_values)  # Aplanar la ultima dimension
-		mean_abs_shap = np.mean(np.abs(shap_values), axis=0)
+		mean_abs_shap = np.mean(np.abs(shap_values), axis=0).flatten()
 
 		# Crear DataFrame
 		importance_df = pd.DataFrame({
@@ -85,7 +85,7 @@ def main():
 		plt.axvline(0, color='black', linestyle='--', linewidth=0.5)
 		plt.gca().invert_yaxis()
 		plt.tight_layout()
-		plot_path_signed = f'{output_path_base}/{model_index}_shap_values_fold_{fold}.pdf'
+		plot_path_signed = f'{output_path_base}/{model_index}_shap_values_fold_{i + 1}.pdf'
 		plt.savefig(plot_path_signed)
 		plt.close()
 

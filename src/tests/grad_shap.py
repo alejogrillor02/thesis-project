@@ -50,24 +50,26 @@ def main():
 	model = load_model(model_path)
 
 	X_test, _ = load_fold_data(TRAIN_DATA_DIR, test_fold)
-	X_test = np.delete(X_test, 0, axis=1) if set_index != "E" else X_test
 
-	# Get a random sample for background
-	background = X_test[np.random.choice(X_test.shape[0], 400, replace=False)]
-
-	# if set_index == "E":
-	# 	sex_train = X_train[:, 0].astype(int)
-	# 	X_train_num = X_train[:, 1:]
-	# 	X_train = {'sex_input': sex_train, 'numerical_input': X_train_num}
-
-	# 	sex_test = X_test[:, 0].astype(int)
-	# 	X_test_num = X_test[:, 1:]
-	# 	X_test = {'sex_input': sex_test, 'numerical_input': X_test_num}
-
-	# Compute SHAP values for each fold
-	explainer = shap.GradientExplainer(model, background)
-	shap_values = explainer(X_test)
-	# shap_values_per_fold.append(shap_values)
+	if set_index == "E":
+		# For embedded model, split into categorical and numerical features
+		background = X_test[np.random.choice(X_test.shape[0], 400, replace=False)]
+		background_cat = background[:, 0].astype(int)
+		background_num = background[:, 1:]
+		
+		# Compute SHAP values for embedded model
+		explainer = shap.GradientExplainer(model, [background_cat, background_num])
+		test_cat = X_test[:, 0].astype(int)
+		test_num = X_test[:, 1:]
+		shap_values = explainer([test_cat, test_num])
+	else:
+		# For non-embedded model, remove first column if not set E
+		X_test = np.delete(X_test, 0, axis=1)
+		background = X_test[np.random.choice(X_test.shape[0], 400, replace=False)]
+		
+		# Compute SHAP values for regular model
+		explainer = shap.GradientExplainer(model, background)
+		shap_values = explainer(X_test)
 
 	# Gráfico de importancia bruta
 	plt.figure(figsize=(12, 8))

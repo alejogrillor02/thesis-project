@@ -49,23 +49,20 @@ def main():
 	model_path = path.join(MODEL_DIR, f'{model_index}_{set_index}_fold_{train_fold}.keras')
 	model = load_model(model_path)
 
-	X_train, _ = load_fold_data(TRAIN_DATA_DIR, train_fold)
-	X_train = np.delete(X_train, 0, axis=1) if set_index != "E" else X_train
+	X_test, _ = load_fold_data(TRAIN_DATA_DIR, test_fold)
+	X_test = np.delete(X_test, 0, axis=1) if set_index != "E" else X_test
 
 	# Get a random sample for background
-	background = X_train[np.random.choice(X_train.shape[0], 400, replace=False)]
+	background = X_test[np.random.choice(X_test.shape[0], 400, replace=False)]
 
-	X_test, _ = load_fold_data(TRAIN_DATA_DIR, test_fold)
-	X_test = np.delete(X_test, 0, axis=1) if set_index != "E" else X_train
+	# if set_index == "E":
+	# 	sex_train = X_train[:, 0].astype(int)
+	# 	X_train_num = X_train[:, 1:]
+	# 	X_train = {'sex_input': sex_train, 'numerical_input': X_train_num}
 
-	if set_index == "E":
-		sex_train = X_train[:, 0].astype(int)
-		X_train_num = X_train[:, 1:]
-		X_train = {'sex_input': sex_train, 'numerical_input': X_train_num}
-
-		sex_test = X_test[:, 0].astype(int)
-		X_test_num = X_test[:, 1:]
-		X_test = {'sex_input': sex_test, 'numerical_input': X_test_num}
+	# 	sex_test = X_test[:, 0].astype(int)
+	# 	X_test_num = X_test[:, 1:]
+	# 	X_test = {'sex_input': sex_test, 'numerical_input': X_test_num}
 
 	# Compute SHAP values for each fold
 	explainer = shap.GradientExplainer(model, background)

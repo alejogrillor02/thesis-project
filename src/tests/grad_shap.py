@@ -77,9 +77,6 @@ def main():
 		'SHAP_values': shap_values
 	})
 
-	print(importance_df.head)
-	print(importance_df.shape)
-
 	plt.figure(figsize=(12, 8))
 	plt.barh(
 		importance_df['Feature'], importance_df['SHAP_mean'],

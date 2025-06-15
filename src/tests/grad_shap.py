@@ -71,10 +71,14 @@ def main():
 		explainer = shap.GradientExplainer(model, background)
 		shap_values = explainer(X_test)
 
+	print(shap_values.shape)
+
+	shap_values_meaned = np.abs(np.mean(shap_values, axis=0))
+
 	# Crear DataFrame
 	importance_df = pd.DataFrame({
 		'Feature': FEATURES[:-1],
-		'SHAP_values': shap_values
+		'SHAP_values': shap_values_meaned
 	})
 
 	plt.figure(figsize=(12, 8))
@@ -84,7 +88,7 @@ def main():
 	)
 	plt.xlabel('Valor SHAP promedio', fontsize=12)
 	plt.ylabel('Feature', fontsize=12)
-	plt.title('Impacto de Features en la Predicción (SHAP Values)', fontsize=14)
+	# plt.title('Impacto de Features en la Predicción (SHAP Values)', fontsize=14)
 	plt.axvline(0, color='black', linestyle='--', linewidth=0.5)
 	plt.gca().invert_yaxis()
 	plt.tight_layout()

@@ -93,6 +93,8 @@ def main():
 	all_mse = []
 	all_r2 = []
 	all_errors = []
+	all_bad = []
+	all_very_bad = []
 
 	# For plotting later
 	bin_size = 2
@@ -130,6 +132,8 @@ def main():
 		all_mse.append(mse_score)
 		all_r2.append(r2)
 		all_errors.append(errors)
+		all_bad.append(bad)
+		all_very_bad.append(very_bad)
 
 		print(f"Fold {fold_num} - MAE: {mae_score:.4f}, MSE: {mse_score:.4f}, R²: {r2:.4f}, Bad cases: {bad}, Very bad cases: {very_bad}")
 
@@ -197,7 +201,9 @@ def main():
 	metrics_per_fold = pd.DataFrame({
 		'MAE': all_mae,
 		'MSE': all_mse,
-		'R2': all_r2
+		'R2': all_r2,
+		'Bad': all_bad,
+		'Very Bad': all_very_bad
 	})
 
 	# Compute mean and std of metrics across folds

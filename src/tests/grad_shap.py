@@ -71,6 +71,7 @@ def main():
 		shap_values = explainer.shap_values(X_test)
 		shap_values = np.squeeze(shap_values)  # Aplanar la ultima dimension
 		mean_abs_shap = np.mean(np.abs(shap_values), axis=0).flatten()
+		all_shap_values.append(mean_abs_shap)
 
 		# Crear DataFrame
 		importance_df = pd.DataFrame({
@@ -109,8 +110,7 @@ def main():
 	final_importance_df = final_importance_df.sort_values('SHAP_mean', ascending=False)
 
 	# Save to CSV
-	csv_path = f'{output_path_base}/{model_index}_shap_stats.csv'
-	final_importance_df.to_csv(csv_path, index=False)
+	final_importance_df.to_csv(path.join(output_path_base, f'{model_index}_shap_stats.csv'), index=False)
 
 	# Print results
 	print("\nFeature Importance Summary (Mean ± Std across folds):")
@@ -131,8 +131,7 @@ def main():
 	plt.axvline(0, color='black', linestyle='--', linewidth=0.5)
 	plt.gca().invert_yaxis()
 	plt.tight_layout()
-	final_plot_path = f'{output_path_base}/{model_index}_shap_values_summary.pdf'
-	plt.savefig(final_plot_path)
+	plt.savefig(path.join(output_path_base, f'{model_index}_shap_values_summary.pdf'))
 	plt.close()
 
 

@@ -51,6 +51,8 @@ def main():
 	data = np.loadtxt(path.join(TRAIN_DATA_DIR, f'{model_index}_{set_index}_test.txt'))
 	X_test = data[:, :-1]
 
+	all_shap_values = []
+
 	for i in range(N_FOLDS):
 		# Load training data
 		X_train_parts = []
@@ -78,7 +80,7 @@ def main():
 
 		# Gráfico de importancia bruta
 		plt.figure(figsize=(12, 8))
-		plt.barh(importance_df['Feature'], importance_df['SHAP_mean'], 'salmon')
+		plt.barh(importance_df['Feature'], importance_df['SHAP_mean'], color='salmon')
 		plt.xlabel('Valor SHAP promedio', fontsize=12)
 		plt.ylabel('Feature', fontsize=12)
 		plt.title('Impacto de Features en la Predicción (SHAP Values)', fontsize=14)
@@ -88,6 +90,50 @@ def main():
 		plot_path_signed = f'{output_path_base}/{model_index}_shap_values_fold_{i + 1}.pdf'
 		plt.savefig(plot_path_signed)
 		plt.close()
+
+	# After processing all folds, compute statistics
+	all_shap_values = np.array(all_shap_values)  # Shape: (n_folds, n_features)
+
+	# Compute mean and std across folds for each feature
+	mean_shap_across_folds = np.mean(all_shap_values, axis=0)
+	std_shap_across_folds = np.std(all_shap_values, axis=0)
+
+	# Create final DataFrame with statistics
+	final_importance_df = pd.DataFrame({
+		'Feature': FEATURES[:-1],
+		'SHAP_mean': mean_shap_across_folds,
+		'SHAP_std': std_shap_across_folds
+	})
+
+	# Sort by mean SHAP value (most important first)
+	final_importance_df = final_importance_df.sort_values('SHAP_mean', ascending=False)
+
+	# Save to CSV
+	csv_path = f'{output_path_base}/{model_index}_shap_stats.csv'
+	final_importance_df.to_csv(csv_path, index=False)
+
+	# Print results
+	print("\nFeature Importance Summary (Mean ± Std across folds):")
+	print(final_importance_df.to_string(index=False))
+
+	# Plot final summary with error bars
+	plt.figure(figsize=(12, 8))
+	plt.barh(
+		final_importance_df['Feature'],
+		final_importance_df['SHAP_mean'],
+		xerr=final_importance_df['SHAP_std'],
+		color='salmon',
+		capsize=5
+	)
+	plt.xlabel('Valor SHAP promedio ± desviación estándar', fontsize=12)
+	plt.ylabel('Feature', fontsize=12)
+	plt.title('Impacto de Features en la Predicción (Promedio entre folds)', fontsize=14)
+	plt.axvline(0, color='black', linestyle='--', linewidth=0.5)
+	plt.gca().invert_yaxis()
+	plt.tight_layout()
+	final_plot_path = f'{output_path_base}/{model_index}_shap_values_summary.pdf'
+	plt.savefig(final_plot_path)
+	plt.close()
 
 
 if __name__ == "__main__":

@@ -73,8 +73,9 @@ def main():
 
 		print("Categorical input shape:", X_test[0].shape)
 		print("Numerical input shape:", X_test[1].shape)
+		print(X_test)
 		model.summary()
-		model.input  # Should show both inputs
+		model.input
 
 		shap_values_array = explainer(X_test)
 	else:

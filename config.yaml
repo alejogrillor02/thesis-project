@@ -16,13 +16,13 @@ FEATURES:
   # - "EJE1"
   # - "AVSC2"
   # - "AVCC2"
-  - "REF_POST" # ESF2 + CIL2/2 # Recomendacion del Especialista
+  # - "REF_POST" # ESF2 + CIL2/2 # Recomendacion del Especialista
   # - "DELTA_REF" # REF_POST - REF_ESP
   # - "ESF2"
   # - "CIL2"
   # - "EJE2"
-  # - "MF1"
-  # - "MD1"
+  - "MF1"
+  - "MD1"
   - "K1" # Recomendacion del Especialista
   # - "WTW"
   # - "CENTRO"
